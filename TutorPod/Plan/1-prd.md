@@ -27,11 +27,27 @@
   4. Logged-in student sets a Learning Path for a subject (guest cannot create/select) and browses recommended chapters.
   5. Student views Account (name, Standard); guest sees Sign in.
 
+
+## Student UX v3 (login-first) — **current**
+
+| ID | Feature | Description | Priority |
+|---|---|---|---|
+| R024 | Login-first entry | App opens on **Login** (no guest Main / onboarding-first) | P0 |
+| R025 | Mandatory settings gate | After student OTP: require **Name** + **Standard** before Main | P0 |
+| R026 | Student Main tiles | Search + **Ask any question** + **My Pods** + **subject tiles** for selected Standard | P0 |
+| R027 | Ask any question | Chat + voice recorder; AI reply (OpenAI or stub); Back → Main | P0 |
+| R028 | Subject → topics | Subject tile → topic/chapter tiles → Start podcast | P0 |
+| R029 | Host count default | Start podcast **defaults to 2 hosts** | P0 |
+
+- Guests do **not** land on catalog Main.
+- Admin login still lands on Admin when `role=admin`.
+- Appearance (light/dark/system) remains on Account/Settings.
+
 ## Features
 
 | ID | Feature | Description | Priority | User |
 |---|---|---|---|---|
-| R001 | Auth gates (listen + learning path) | **UPDATED:** Login required to **listen** (Play / Start podcast / Player / MyPods playback) and to **create/select Learning Path**. Soft-prompt + resume after auth. | P0 | Student |
+| R001 | Auth gates | **v3:** Login is app entry; student needs complete settings for Main; listen/Q&A remain auth-only | P0 | Student |
 | R002 | Home pills | Filters: **All**, **MyPods**, **Learning Path** | P0 | Student |
 | R003 | Curriculum dropdowns | **v2:** Select **Standard → Section → Chapter** via API-loaded dropdowns (Section replaces Subject) | P0 | Student / Guest |
 | R004 | Chapter tiles | List chapter tiles with photos based on current selection/filters | P0 | Student / Guest |
@@ -52,7 +68,7 @@
 | R014 | Share pod | Share link or deep link to a pod (metadata only) | P2 | Student |
 | R015 | Offline download | Download pods for offline listen | P2 | Student |
 | R016 | Studio extras | Video/slides/flashcards/quiz/infographic/reports | P2 | Student |
-| R017 | Guest catalog browse | **UPDATED (was P2 full-app wall):** Guest may browse All chapter tiles (read-only); gated actions soft-prompt login | P0 | Guest |
+| R017 | Guest catalog browse | **SUPERSEDED by R024** — login-first; no guest Main catalog | — | — |
 
 ## Business Rules
 - **Business rules:**

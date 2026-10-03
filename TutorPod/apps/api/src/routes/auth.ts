@@ -7,6 +7,7 @@ import {
   signAccessToken,
 } from "../auth/tokens.js";
 import { query } from "../db/pool.js";
+import { isProfileComplete } from "../domain/profile.js";
 import { AppError } from "../errors.js";
 
 type DbUser = {
@@ -24,6 +25,11 @@ function publicUser(u: DbUser) {
     name: u.name,
     standardId: u.standard_id,
     role: u.role,
+    profileComplete: isProfileComplete({
+      name: u.name,
+      standard_id: u.standard_id,
+      role: u.role,
+    }),
   };
 }
 
@@ -70,17 +76,12 @@ export async function authRoutes(app: FastifyInstance) {
     ).rows[0];
 
     if (!user) {
-      const std = (
-        await query<{ id: string }>(
-          `SELECT id FROM standards WHERE code='CBSE-12' LIMIT 1`,
-        )
-      ).rows[0];
-      const name = email.split("@")[0] || "Student";
+      // R025 — new students must complete Name + Standard on Settings
       user = (
         await query<DbUser>(
-          `INSERT INTO users (email, name, standard_id, role) VALUES ($1,$2,$3,'student')
+          `INSERT INTO users (email, name, standard_id, role) VALUES ($1,'',NULL,'student')
            RETURNING id, email, name, standard_id, role`,
-          [email, name, std?.id ?? null],
+          [email],
         )
       ).rows[0];
     }

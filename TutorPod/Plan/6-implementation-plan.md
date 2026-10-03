@@ -128,3 +128,16 @@ Sprint status: **Done** with Partial where infra-limited
 | T077 | **Done** | S3-compatible storage (optional env gate) | Fallback local `storage/` | storage backend unit |
 
 See [`Plan/docs/p1-p2.md`](docs/p1-p2.md).
+
+## Sprint Student-v3 — Login-first Main
+Sprint status: **Done**
+
+| Task ID | Status | Description |
+|---|---|---|
+| T080 | **Done** | Login-first entry; remove guest Main CTA |
+| T081 | **Done** | Mandatory Name+Standard Settings gate |
+| T082 | **Done** | Main tiles: Search, Ask, MyPods, subjects |
+| T083 | **Done** | Ask any question chat + voice (stub STT) |
+| T084 | **Done** | Subject → topic tiles → Start (host default 2) |
+| T085 | **Done** | `POST /api/v1/ask` + profileComplete on `/me` |
+

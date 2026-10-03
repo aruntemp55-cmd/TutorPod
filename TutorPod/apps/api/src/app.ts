@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import { ZodError } from "zod";
 import { AppError, errorBody } from "./errors.js";
 import { adminRoutes } from "./routes/admin.js";
+import { askRoutes } from "./routes/ask.js";
 import { authRoutes } from "./routes/auth.js";
 import { catalogRoutes } from "./routes/catalog.js";
 import { meRoutes } from "./routes/me.js";
@@ -36,6 +37,7 @@ export async function buildApp() {
   await meRoutes(app);
   await catalogRoutes(app);
   await searchRoutes(app);
+  await askRoutes(app);
   await podRoutes(app);
   await adminRoutes(app);
 

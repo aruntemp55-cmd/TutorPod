@@ -19,6 +19,8 @@ export type User = {
   role?: "student" | "admin";
   standardId: string | null;
   standard?: { id: string; name: string; code: string } | null;
+  /** Server-computed; Name + Standard required for students */
+  profileComplete?: boolean;
 };
 
 export type Pod = {

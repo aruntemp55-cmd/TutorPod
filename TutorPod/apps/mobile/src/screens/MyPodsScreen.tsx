@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Alert, FlatList, Share } from "react-native";
+import { Alert, FlatList, Pressable, Share, Text } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { api } from "../api/client";
@@ -16,10 +16,12 @@ import {
 } from "../offline/download";
 import { useRootNav } from "../navigation/useRootNav";
 import { podShareMessage } from "../share/deepLink";
+import { useTheme } from "../theme/ThemeContext";
 import { space } from "../theme/tokens";
 
 export function MyPodsScreen() {
   const nav = useRootNav();
+  const { colors } = useTheme();
   const { isAuthenticated, token } = useAuth();
   const [pods, setPods] = useState<Pod[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +143,12 @@ export function MyPodsScreen() {
 
   return (
     <Screen style={{ paddingTop: space[6] }}>
-      <Title style={{ fontSize: 24, marginBottom: space[4] }}>MyPods</Title>
+      <Pressable onPress={() => nav.navigate("Main")}>
+        <Text style={{ color: colors.accent, fontFamily: "DMSans_600SemiBold" }}>
+          ← Back
+        </Text>
+      </Pressable>
+      <Title style={{ fontSize: 24, marginVertical: space[4] }}>My Pods</Title>
       {error ? <ErrorBanner message={error} onRetry={() => void load()} /> : null}
       <FlatList
         data={pods}
@@ -152,7 +159,7 @@ export function MyPodsScreen() {
             offline={!!offlineMap[item.id]}
             downloading={downloadingId === item.id}
             onPlay={() => nav.navigate("Player", { podId: item.id })}
-            onRaiseHand={() => nav.navigate("RaiseHand", { podId: item.id })}
+            onRaiseHand={() => nav.navigate("Player", { podId: item.id })}
             onShare={() => void sharePod(item)}
             onDownload={() => void toggleDownload(item)}
           />
@@ -160,7 +167,7 @@ export function MyPodsScreen() {
         ListEmptyComponent={
           <EmptyState
             title="No pods yet"
-            body="Start a podcast from the Home tab."
+            body="Open a subject on Main and start a podcast."
           />
         }
       />

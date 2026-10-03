@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useAuth } from "../auth/AuthContext";
+import { studentHomeRoute } from "../auth/profileComplete";
 import { takePendingAction } from "../auth/pendingAction";
 import type { RootStackParamList } from "../navigation/types";
 import { ErrorBanner, Meta, PrimaryButton, Screen, Title } from "../components/ui";
@@ -23,48 +24,21 @@ export function OtpScreen({ navigation, route }: Props) {
     setError(null);
     try {
       const user = await signIn(route.params.email, code.trim());
-      const pending = takePendingAction();
+      takePendingAction(); // clear any legacy pending guest actions
 
       if (user.role === "admin") {
         navigation.reset({ index: 0, routes: [{ name: "Admin" }] });
         return;
       }
 
-      if (pending?.type === "startPodcast") {
-        if (pending.standardId && pending.sectionId) {
-          navigation.replace("StartPodcast", {
-            standardId: pending.standardId,
-            sectionId: pending.sectionId,
-            chapterId: pending.chapterId,
-            chapterTitle: pending.chapterTitle,
-          });
-          return;
-        }
-      }
-      if (pending?.type === "playPod") {
-        navigation.replace("Player", { podId: pending.podId });
-        return;
-      }
-      if (pending?.type === "openMyPods") {
+      const dest = studentHomeRoute(user);
+      if (dest === "Settings") {
         navigation.reset({
           index: 0,
-          routes: [
-            {
-              name: "Main",
-              state: {
-                index: 1,
-                routes: [
-                  { name: "Home" },
-                  { name: "MyPodsTab" },
-                  { name: "Account" },
-                ],
-              },
-            },
-          ],
+          routes: [{ name: "Settings", params: { mandatory: true } }],
         });
         return;
       }
-      // openLearningPath and default → Main (Home); Learning Path pill works when authed
       navigation.reset({ index: 0, routes: [{ name: "Main" }] });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid code");
@@ -85,6 +59,7 @@ export function OtpScreen({ navigation, route }: Props) {
         onChangeText={setCode}
         style={styles.input}
         accessibilityLabel="One-time code"
+        testID="input-otp"
       />
       <PrimaryButton
         label={loading ? "Verifying…" : "Verify"}
@@ -97,16 +72,16 @@ export function OtpScreen({ navigation, route }: Props) {
 
 function makeStyles(colors: import("../theme/tokens").ColorTokens) {
   return StyleSheet.create({
-  wrap: { justifyContent: "center", gap: space[4] },
-  input: {
-    backgroundColor: colors.card,
-    borderRadius: radius.button,
-    padding: space[4],
-    color: colors.text,
-    letterSpacing: 8,
-    fontSize: 22,
-    textAlign: "center",
-    fontFamily: "DMSans_600SemiBold",
-  },
-});
+    wrap: { justifyContent: "center", gap: space[4] },
+    input: {
+      backgroundColor: colors.card,
+      borderRadius: radius.button,
+      padding: space[4],
+      color: colors.text,
+      letterSpacing: 8,
+      fontSize: 22,
+      textAlign: "center",
+      fontFamily: "DMSans_600SemiBold",
+    },
+  });
 }

@@ -62,6 +62,31 @@ export async function chatCompletion(
   return content;
 }
 
+/** Whisper STT — returns transcript text. */
+export async function transcribeSpeech(
+  buffer: Buffer,
+  filename: string,
+  mimeType: string,
+): Promise<string> {
+  const form = new FormData();
+  form.append(
+    "file",
+    new Blob([new Uint8Array(buffer)], {
+      type: mimeType || "audio/mp4",
+    }),
+    filename || "audio.m4a",
+  );
+  form.append("model", config.openaiSttModel);
+  const res = await openaiFetch("/audio/transcriptions", {
+    method: "POST",
+    body: form,
+  });
+  const data = (await res.json()) as { text?: string };
+  const text = data.text?.trim();
+  if (!text) throw new OpenAIError("Empty transcription");
+  return text;
+}
+
 /** TTS — returns MP3 buffer. */
 export async function textToSpeech(
   text: string,

@@ -1,52 +1,35 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import onboardingFlag from "../auth/onboardingFlag";
 import { useAuth } from "../auth/AuthContext";
+import { studentHomeRoute } from "../auth/profileComplete";
 import type { RootStackParamList } from "../navigation/types";
 import { useTheme } from "../theme/ThemeContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 
+/** Brief boot gate — students land on Login unless already authenticated. */
 export function SplashScreen({ navigation }: Props) {
   const { colors } = useTheme();
-  const { ready, user } = useAuth();
+  const { ready, user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function go() {
-      try {
-        if (user?.role === "admin") {
-          if (!cancelled) navigation.replace("Admin");
-          return;
-        }
-        const done = await Promise.race([
-          onboardingFlag.isOnboardingDone(),
-          new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 800)),
-        ]);
-        if (!cancelled) navigation.replace(done ? "Main" : "Onboarding");
-      } catch {
-        if (!cancelled) navigation.replace("Onboarding");
-      }
+    if (!ready) return;
+    if (!isAuthenticated || !user) {
+      navigation.replace("Login");
+      return;
     }
-
-    if (ready) {
-      void go();
-      return () => {
-        cancelled = true;
-      };
+    if (user.role === "admin") {
+      navigation.replace("Admin");
+      return;
     }
-
-    // Never stay on splash forever (e.g. auth boot hang on web)
-    const t = setTimeout(() => {
-      void go();
-    }, 2000);
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-    };
-  }, [ready, user, navigation]);
+    const dest = studentHomeRoute(user);
+    if (dest === "Settings") {
+      navigation.replace("Settings", { mandatory: true });
+    } else {
+      navigation.replace("Main");
+    }
+  }, [ready, user, isAuthenticated, navigation]);
 
   return (
     <View

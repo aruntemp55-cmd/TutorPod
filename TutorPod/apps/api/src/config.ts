@@ -22,6 +22,7 @@ export const config = {
   ).replace(/\/$/, ""),
   openaiChatModel: process.env.OPENAI_CHAT_MODEL ?? "gpt-4o-mini",
   openaiTtsModel: process.env.OPENAI_TTS_MODEL ?? "tts-1",
+  openaiSttModel: process.env.OPENAI_STT_MODEL ?? "whisper-1",
   /** Comma-separated TTS voices for hosts 1..n (OpenAI: alloy,echo,fable,onyx,nova,shimmer) */
   openaiTtsVoices: (
     process.env.OPENAI_TTS_VOICES ?? "alloy,nova,echo,onyx"

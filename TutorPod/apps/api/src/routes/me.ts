@@ -1,8 +1,39 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireAuth } from "../auth/middleware.js";
+import { isProfileComplete } from "../domain/profile.js";
 import { query } from "../db/pool.js";
 import { AppError } from "../errors.js";
+
+function mapMe(u: {
+  id: string;
+  email: string;
+  name: string;
+  standard_id: string | null;
+  role: "student" | "admin";
+  standard_name?: string | null;
+  standard_code?: string | null;
+}) {
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    role: u.role,
+    standardId: u.standard_id,
+    standard: u.standard_id
+      ? {
+          id: u.standard_id,
+          name: u.standard_name ?? null,
+          code: u.standard_code ?? null,
+        }
+      : null,
+    profileComplete: isProfileComplete({
+      name: u.name,
+      standard_id: u.standard_id,
+      role: u.role,
+    }),
+  };
+}
 
 export async function meRoutes(app: FastifyInstance) {
   app.get("/api/v1/me", { preHandler: requireAuth }, async (req) => {
@@ -24,16 +55,7 @@ export async function meRoutes(app: FastifyInstance) {
     );
     const u = rows[0];
     if (!u) throw new AppError(404, "NOT_FOUND", "User not found");
-    return {
-      id: u.id,
-      email: u.email,
-      name: u.name,
-      role: u.role,
-      standardId: u.standard_id,
-      standard: u.standard_id
-        ? { id: u.standard_id, name: u.standard_name, code: u.standard_code }
-        : null,
-    };
+    return mapMe(u);
   });
 
   app.patch("/api/v1/me", { preHandler: requireAuth }, async (req) => {
@@ -59,21 +81,18 @@ export async function meRoutes(app: FastifyInstance) {
       name: string;
       standard_id: string | null;
       role: "student" | "admin";
+      standard_name: string | null;
+      standard_code: string | null;
     }>(
       `UPDATE users SET
          name = COALESCE($2, name),
          standard_id = COALESCE($3, standard_id)
        WHERE id=$1
-       RETURNING id, email, name, standard_id, role`,
+       RETURNING id, email, name, standard_id, role,
+         (SELECT name FROM standards WHERE id = users.standard_id) AS standard_name,
+         (SELECT code FROM standards WHERE id = users.standard_id) AS standard_code`,
       [req.user!.id, body.name ?? null, body.standardId ?? null],
     );
-    const u = rows[0];
-    return {
-      id: u.id,
-      email: u.email,
-      name: u.name,
-      role: u.role,
-      standardId: u.standard_id,
-    };
+    return mapMe(rows[0]);
   });
 }
