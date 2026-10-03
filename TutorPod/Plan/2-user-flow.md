@@ -178,14 +178,14 @@ sequenceDiagram
 
 ### F008 — Raise-hand Q&A
 - **Entry point:** Raise-hand on MyPods row or Player (implies auth + active listen context).
-- **User action:** Type/speak question → Submit. `[ASSUMPTION: text input MVP; voice input P2.]`
-- **System response:** Pause audio; `POST` question; show answer; optional continue listening.
-- **Next step:** Return to Player/MyPods; answer history on sheet.
-- **Success state:** Answer displayed.
-- **Error state:** AI/timeout → friendly retry; offline → blocked with message.
-- **Empty state:** Prompt “What are you stuck on?”
-- **Loading state:** “Thinking…” with cancel. `[ASSUMPTION: cancel aborts client wait; server may still complete.]`
-- **Back navigation:** Close sheet resumes playback from pause point.
+- **User action:** Type question and send, **or** tap mic/voice → record → stop (fills text) or send (transcribe + submit). Composer matches ChatGPT idle/recording bars.
+- **System response:** Pause audio; voice → `POST /api/v1/ask/transcribe` → `POST …/questions`; show answer; Resume listening / Close without resuming.
+- **Next step:** Return to Player/MyPods; answer on sheet.
+- **Success state:** Answer displayed; audio still paused until resume/close.
+- **Error state:** STT unavailable/failed → type instead; AI/timeout → friendly retry; mic denied / web unavailable → message; offline → blocked.
+- **Empty state:** Idle composer placeholder “What are you stuck on?”
+- **Loading state:** Transcribing… / Thinking… (composer disabled except cancel while recording).
+- **Back navigation:** Close sheet; optional resume from pause point.
 
 ### F009 — Learning Path — auth required to create/select
 - **Entry point:** Pill **Learning Path**.

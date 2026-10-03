@@ -35,10 +35,16 @@ Login ──OTP──► Admin? ──yes──► Admin
 Until both are set, Main is blocked (Settings only).
 
 ## Ask voice STT
-1. Mobile records `.m4a` → `POST /api/v1/ask/transcribe` (multipart `file`)
+1. Mobile ChatGPT-style composer records audio → `POST /api/v1/ask/transcribe` (multipart `file`)
 2. API uses OpenAI Whisper when `OPENAI_API_KEY` is set
 3. Without key / on failure → `503 STT_UNAVAILABLE` or `STT_FAILED` — type instead
-4. Transcript fills input and is sent to `POST /api/v1/ask`
+4. **Ask:** transcript → `POST /api/v1/ask`
+5. **Raise-hand (Player):** transcript → `POST /api/v1/pods/:id/questions` (audio paused while sheet open)
+
+### Composer UX
+- **Idle:** capsule — placeholder, mic, circular voice/send
+- **Recording:** X cancel, live waveform, stop, blue send arrow
+- Web: graceful mic unavailable / permission denied messaging (type still works)
 
 ## Credentials
 | Role | Email | OTP |

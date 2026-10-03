@@ -35,7 +35,7 @@
 | R024 | Login-first entry | App opens on **Login** (no guest Main / onboarding-first) | P0 |
 | R025 | Mandatory settings gate | After student OTP: require **Name** + **Standard** before Main | P0 |
 | R026 | Student Main tiles | Search + **Ask any question** + **My Pods** + **subject tiles** for selected Standard | P0 |
-| R027 | Ask any question | Chat + voice → Whisper STT (`POST /api/v1/ask/transcribe`, env-gated); AI reply (OpenAI or stub); Back → Main | P0 |
+| R027 | Ask any question | Chat + voice via ChatGPT-style composer → Whisper STT (`POST /api/v1/ask/transcribe`, env-gated); AI reply (OpenAI or stub); Back → Main | P0 |
 | R028 | Subject → topics | Subject tile → topic/chapter tiles → Start podcast | P0 |
 | R029 | Host count default | Start podcast **defaults to 2 hosts** | P0 |
 
@@ -55,7 +55,7 @@
 | R006 | Topic context (+) | Add optional extra context/notes before generation/start — **auth required** | P0 | Student |
 | R007 | MyPods library | List student’s podcasts with play + raise-hand controls — **auth required** | P0 | Student |
 | R008 | Streamed audio player | NotebookLM-like player; audio **streamed from server** — **auth required** | P0 | Student |
-| R009 | Raise-hand Q&A | **Pause audio**, ask question, AI answers, resume — **auth required** | P0 | Student |
+| R009 | Raise-hand Q&A | **Pause audio**, ask via **text or voice** (ChatGPT-style composer → Whisper STT → pod question), AI answers, resume — **auth required** | P0 | Student |
 | R010 | Learning Path | Select/view path per **section** — **auth required to create/select** | P0 | Student |
 | R011 | Account | Show student name and Standard; access profile — **auth required** | P0 | Student |
 | R019 | Admin role + default Admin screen | Admin login in same app; land on Admin Screen | P0 | Admin |
@@ -83,6 +83,7 @@
   - Learning Path is selected **per subject** (one active path per subject at a time). `[ASSUMPTION]`
   - Like/dislike is one reaction per user per pod (toggleable). `[ASSUMPTION]`
   - Raise-hand **must pause** playback while Q&A UI is open; resume on dismiss.
+  - Raise-hand and Ask share the same voice+text composer pattern: idle (text + mic + primary voice/send) and recording (cancel, live waveform, stop, send). Voice uses `POST /api/v1/ask/transcribe`; raise-hand still submits via pod questions.
 - Hierarchy is **Standard → Section → Chapter** (Section = former Subject).
 - Podcast start payload includes standardId, sectionId, chapterId, hostCount (+ optional context).
 - Audio is served via authenticated stream endpoint (not anonymous CDN links in catalog).

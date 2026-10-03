@@ -5,7 +5,6 @@ import {
   Share,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import {
@@ -18,6 +17,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api } from "../api/client";
 import type { Pod, Question } from "../api/types";
 import { useAuth } from "../auth/AuthContext";
+import { AskTutorComposer } from "../components/AskTutorComposer";
 import { Waveform } from "../components/Waveform";
 import { isPodOffline, offlineUriForPod } from "../offline/download";
 import { captureException } from "../telemetry/sentry";
@@ -54,6 +54,7 @@ export function PlayerScreen({ navigation, route }: Props) {
   const [handOpen, setHandOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
+  const [askError, setAskError] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
   const [usingOffline, setUsingOffline] = useState(false);
   const [ready, setReady] = useState(false);
@@ -134,6 +135,7 @@ export function PlayerScreen({ navigation, route }: Props) {
   function openRaiseHand() {
     if (player.playing) player.pause();
     setAnswer(null);
+    setAskError(null);
     setQuestion("");
     setHandOpen(true);
   }
@@ -143,18 +145,20 @@ export function PlayerScreen({ navigation, route }: Props) {
     if (resume && !player.playing) player.play();
   }
 
-  async function ask() {
-    if (!token || !question.trim()) return;
+  async function ask(text: string) {
+    if (!token || !text.trim() || asking) return;
     setAsking(true);
+    setAskError(null);
     try {
       const q = await api<Question>(
         `/api/v1/pods/${route.params.podId}/questions`,
-        { token, body: { questionText: question.trim() } },
+        { token, body: { questionText: text.trim() } },
       );
       setAnswer(q.answerText ?? "No answer");
+      setQuestion("");
     } catch (e) {
       captureException(e, { feature: "raise-hand", podId: route.params.podId });
-      setAnswer(e instanceof Error ? e.message : "Ask failed");
+      setAskError(e instanceof Error ? e.message : "Ask failed");
     } finally {
       setAsking(false);
     }
@@ -264,27 +268,33 @@ export function PlayerScreen({ navigation, route }: Props) {
               Ask your tutor
             </Text>
             <Meta>Audio paused while you ask.</Meta>
-            <TextInput
-              multiline
+            {askError ? <ErrorBanner message={askError} /> : null}
+            <AskTutorComposer
               value={question}
               onChangeText={setQuestion}
+              onSubmit={(text) => void ask(text)}
+              token={token}
+              submitting={asking}
+              onError={setAskError}
               placeholder="What are you stuck on?"
-              placeholderTextColor={colors.textDisabled}
-              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
             />
-            {answer ? <Text style={[styles.answer, { color: colors.textSecondary }]}>{answer}</Text> : null}
-            <PrimaryButton
-              label={asking ? "Thinking…" : "Submit"}
-              onPress={() => void ask()}
-              disabled={asking || !question.trim()}
-            />
+            {answer ? (
+              <Text
+                style={[styles.answer, { color: colors.textSecondary }]}
+                accessibilityLiveRegion="polite"
+              >
+                {answer}
+              </Text>
+            ) : null}
             <PrimaryButton
               label="Resume listening"
               variant="accent"
               onPress={() => closeRaiseHand(true)}
             />
             <Pressable onPress={() => closeRaiseHand(false)}>
-              <Text style={[styles.dismiss, { color: colors.textSecondary }]}>Close without resuming</Text>
+              <Text style={[styles.dismiss, { color: colors.textSecondary }]}>
+                Close without resuming
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -352,12 +362,6 @@ const styles = StyleSheet.create({
   sheetTitle: {
     fontSize: 22,
     fontFamily: "SpaceGrotesk_600SemiBold",
-  },
-  input: {
-    minHeight: 90,
-    borderRadius: radius.button,
-    padding: space[3],
-    fontFamily: "DMSans_400Regular",
   },
   answer: {
     fontFamily: "DMSans_400Regular",

@@ -102,6 +102,7 @@ export async function askRoutes(app: FastifyInstance) {
         }
 
         try {
+          // Shared by Ask (R027) and Raise-hand voice (R009) composers.
           const result = await transcribeAudio({
             buffer,
             filename: file.filename || "audio.m4a",

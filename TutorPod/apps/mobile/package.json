@@ -11,7 +11,7 @@
     "lint": "tsc --noEmit",
     "test:auth": "tsx --test src/auth/*.test.ts",
     "test:unit": "tsx --test src/**/*.test.ts src/**/**/*.test.ts",
-    "test": "tsx --test src/auth/*.test.ts src/components/*.test.ts src/navigation/*.test.ts src/player/*.test.ts src/telemetry/*.test.ts src/offline/*.test.ts src/domain/*.test.ts src/share/*.test.ts src/notifications/*.test.ts src/theme/*.test.ts"
+    "test": "tsx --test src/auth/*.test.ts src/ask/*.test.ts src/components/*.test.ts src/navigation/*.test.ts src/player/*.test.ts src/telemetry/*.test.ts src/offline/*.test.ts src/domain/*.test.ts src/share/*.test.ts src/notifications/*.test.ts src/theme/*.test.ts"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.1",

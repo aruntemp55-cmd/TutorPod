@@ -226,23 +226,26 @@
 ---
 
 ### S011 — Raise-hand Q&A Sheet
-- **Purpose:** Capture question; show answer.
+- **Purpose:** Capture question (text or voice); show answer while audio is paused.
 - **Entry:** S008 / S010.
-- **Exit:** Dismiss → prior.
+- **Exit:** Resume listening → prior with play; Close without resuming → prior paused.
 
 #### UI
-- Hand icon header “Ask your tutor”.
-- Multiline question; Submit.
-- Answer card (markdown plain text MVP); history of prior Q&As for this pod (scroll). `[ASSUMPTION: show last N=20.]`
+- Header “Ask your tutor” + “Audio paused while you ask.”
+- **ChatGPT-style composer (shared with Ask):**
+  - **Idle:** Capsule bar — multiline field (“What are you stuck on?”), mic (dictation), primary circular control (waveform when empty; send arrow when text present).
+  - **Recording:** Capsule bar — X cancel | live waveform | stop (square) | blue send arrow.
+- Answer text below composer when returned.
+- Footer: “Resume listening” (accent) + “Close without resuming”.
 
 #### States
-- Default / Loading thinking / Success answer / Error retry / Empty prompt / Offline blocked.
+- Idle empty / Idle with draft text / Recording / Transcribing / Thinking / Success answer / Error (STT or AI) / Mic denied / Web mic unavailable.
 
 #### Interaction
-- Submit; copy answer (P1); close.
+- Send text → POST questions; voice send → transcribe then POST questions; stop → transcribe into field; cancel recording → discard; resume/close as labeled.
 
 #### Accessibility
-- Answer live region; focus moves to answer on success.
+- Answer live region; focus to answer on success; icon controls labeled (Cancel recording, Stop recording, Send question, Start voice, Dictate).
 
 ---
 

@@ -3,17 +3,16 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { api } from "../api/client";
 import type { Question } from "../api/types";
 import { useAuth } from "../auth/AuthContext";
+import { AskTutorComposer } from "../components/AskTutorComposer";
 import {
   ErrorBanner,
   Meta,
-  PrimaryButton,
   Screen,
   Title,
 } from "../components/ui";
@@ -43,14 +42,14 @@ export function RaiseHandScreen({ navigation, route }: Props) {
     ).then((r) => setItems(r.items));
   }, [isAuthenticated, token, route.params.podId, navigation]);
 
-  async function submit() {
-    if (!token || !question.trim()) return;
+  async function submit(text: string) {
+    if (!token || !text.trim() || loading) return;
     setLoading(true);
     setError(null);
     try {
       const q = await api<Question>(
         `/api/v1/pods/${route.params.podId}/questions`,
-        { token, body: { questionText: question.trim() } },
+        { token, body: { questionText: text.trim() } },
       );
       setItems((prev) => [q, ...prev]);
       setQuestion("");
@@ -66,18 +65,14 @@ export function RaiseHandScreen({ navigation, route }: Props) {
       <Title style={{ fontSize: 22 }}>Ask your tutor</Title>
       <Meta>What are you stuck on?</Meta>
       {error ? <ErrorBanner message={error} /> : null}
-      <TextInput
-        multiline
+      <AskTutorComposer
         value={question}
         onChangeText={setQuestion}
+        onSubmit={(text) => void submit(text)}
+        token={token}
+        submitting={loading}
+        onError={setError}
         placeholder="Why does nucleophilic addition…"
-        placeholderTextColor={colors.textDisabled}
-        style={styles.input}
-      />
-      <PrimaryButton
-        label={loading ? "Thinking…" : "Submit"}
-        onPress={() => void submit()}
-        disabled={loading || !question.trim()}
       />
       <FlatList
         data={items}
@@ -96,28 +91,19 @@ export function RaiseHandScreen({ navigation, route }: Props) {
 
 function makeStyles(colors: import("../theme/tokens").ColorTokens) {
   return StyleSheet.create({
-  wrap: { paddingTop: space[8], gap: space[3] },
-  input: {
-    minHeight: 100,
-    backgroundColor: colors.card,
-    borderRadius: radius.button,
-    padding: space[4],
-    color: colors.text,
-    textAlignVertical: "top",
-    fontFamily: "DMSans_400Regular",
-  },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.card,
-    padding: space[4],
-    marginBottom: space[3],
-    gap: space[2],
-  },
-  q: { color: colors.text, fontFamily: "DMSans_600SemiBold" },
-  a: {
-    color: colors.textSecondary,
-    fontFamily: "DMSans_400Regular",
-    lineHeight: 20,
-  },
-});
+    wrap: { paddingTop: space[8], gap: space[3] },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: radius.card,
+      padding: space[4],
+      marginBottom: space[3],
+      gap: space[2],
+    },
+    q: { color: colors.text, fontFamily: "DMSans_600SemiBold" },
+    a: {
+      color: colors.textSecondary,
+      fontFamily: "DMSans_400Regular",
+      lineHeight: 20,
+    },
+  });
 }

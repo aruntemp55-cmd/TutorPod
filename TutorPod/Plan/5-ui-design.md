@@ -88,6 +88,10 @@ Light mode: P2 — not required for MVP.
 ### Dialogs / Sheets
 - Start Podcast sheet; Raise-hand sheet; Logout confirm dialog.
 - Host selector as segmented control inside sheet.
+- **AskTutorComposer (shared):** ChatGPT-style dark capsule bar
+  - Idle: text field + mic icon + circular primary (waveform when empty / send arrow when draft text)
+  - Recording: X | animated live bars | stop square | blue send arrow
+  - Uses `colors.card` / `colors.accent` / `radius.pill`; touch targets ≥ 44
 - **UPDATED — LoginSoftPrompt (S014):** bottom sheet / modal on dark `bg.surface`:
   - Title variants: “Sign in to listen” / “Sign in to start a podcast” / “Sign in to choose a learning path”
   - Body one short line; primary white CTA “Sign in”; text secondary “Not now”
@@ -106,7 +110,7 @@ Light mode: P2 — not required for MVP.
 ## Motion (intentional, 2–3+)
 1. Pill selection background morph (120–180ms).
 2. Waveform gentle phase animation while playing.
-3. Raise-hand sheet spring present; answer fade-in.
+3. Raise-hand sheet spring present; answer fade-in; recording waveform phase while mic open.
 4. Optional: play button scale on press.
 
 Respect `prefers-reduced-motion`: static waveform, instant sheet.
@@ -137,6 +141,7 @@ App
 │   ├── ContextComposer
 │   ├── StartPodcastSheet
 │   ├── RaiseHandSheet
+│   ├── AskTutorComposer          # ChatGPT-style voice+text bar (idle / recording)
 │   ├── LoginSoftPrompt          # NEW — listen / learning-path gate
 │   ├── Waveform
 │   ├── PlayerControls

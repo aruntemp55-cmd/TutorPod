@@ -4,22 +4,15 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  RecordingPresets,
-  requestRecordingPermissionsAsync,
-  useAudioRecorder,
-  useAudioRecorderState,
-} from "expo-audio";
-import { api, apiUpload } from "../api/client";
+import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { AskTutorComposer } from "../components/AskTutorComposer";
 import {
   ErrorBanner,
   Meta,
-  PrimaryButton,
   Screen,
   Title,
 } from "../components/ui";
@@ -31,16 +24,6 @@ type Props = NativeStackScreenProps<RootStackParamList, "AskQuestion">;
 
 type Turn = { id: string; role: "user" | "assistant"; content: string };
 
-function guessAudioMeta(uri: string): { name: string; type: string } {
-  const lower = uri.toLowerCase();
-  if (lower.endsWith(".wav")) return { name: "question.wav", type: "audio/wav" };
-  if (lower.endsWith(".webm"))
-    return { name: "question.webm", type: "audio/webm" };
-  if (lower.endsWith(".mp3")) return { name: "question.mp3", type: "audio/mpeg" };
-  if (lower.endsWith(".caf")) return { name: "question.caf", type: "audio/x-caf" };
-  return { name: "question.m4a", type: "audio/mp4" };
-}
-
 export function AskQuestionScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { token } = useAuth();
@@ -48,10 +31,7 @@ export function AskQuestionScreen({ navigation }: Props) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [transcribing, setTranscribing] = useState(false);
   const listRef = useRef<FlatList<Turn>>(null);
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const recState = useAudioRecorderState(recorder);
 
   async function sendMessage(message: string) {
     const trimmed = message.trim();
@@ -91,66 +71,6 @@ export function AskQuestionScreen({ navigation }: Props) {
     }
   }
 
-  async function transcribeAndSend(uri: string) {
-    if (!token) return;
-    setTranscribing(true);
-    setError(null);
-    try {
-      const meta = guessAudioMeta(uri);
-      const form = new FormData();
-      form.append("file", {
-        uri,
-        name: meta.name,
-        type: meta.type,
-      } as unknown as Blob);
-      const res = await apiUpload<{ transcript: string }>(
-        "/api/v1/ask/transcribe",
-        { token, form },
-      );
-      const transcript = res.transcript.trim();
-      if (!transcript) {
-        setError("Could not hear a question. Try again or type it.");
-        return;
-      }
-      setText(transcript);
-      await sendMessage(transcript);
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : "Could not transcribe audio. Type your question instead.",
-      );
-    } finally {
-      setTranscribing(false);
-    }
-  }
-
-  async function toggleRecord() {
-    try {
-      if (recState.isRecording) {
-        await recorder.stop();
-        const uri = recorder.uri;
-        if (!uri) {
-          setError("Recording failed — no audio file. Type your question.");
-          return;
-        }
-        await transcribeAndSend(uri);
-        return;
-      }
-      const perm = await requestRecordingPermissionsAsync();
-      if (!perm.granted) {
-        setError("Microphone permission is required for voice questions.");
-        return;
-      }
-      await recorder.prepareToRecordAsync();
-      recorder.record();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Recording failed");
-    }
-  }
-
-  const busy = sending || transcribing;
-
   return (
     <Screen style={{ paddingTop: space[6], flex: 1 }} testID="screen-ask">
       <Pressable onPress={() => navigation.goBack()}>
@@ -162,8 +82,8 @@ export function AskQuestionScreen({ navigation }: Props) {
         Ask any question
       </Title>
       <Meta>
-        Type or record a voice question. Voice is transcribed with Whisper when
-        OPENAI_API_KEY is set on the API; otherwise type your question.
+        Type or use voice. Voice is transcribed with Whisper when OPENAI_API_KEY
+        is set on the API; otherwise type your question.
       </Meta>
       {error ? <ErrorBanner message={error} /> : null}
       <FlatList
@@ -198,38 +118,16 @@ export function AskQuestionScreen({ navigation }: Props) {
           </Meta>
         }
       />
-      <View style={styles.composer}>
-        <TextInput
+      <View style={styles.composerWrap}>
+        <AskTutorComposer
           value={text}
           onChangeText={setText}
-          placeholder="Type your question…"
-          placeholderTextColor={colors.textDisabled}
-          multiline
-          editable={!busy}
-          style={[
-            styles.input,
-            { backgroundColor: colors.card, color: colors.text },
-          ]}
+          onSubmit={(msg) => void sendMessage(msg)}
+          token={token}
+          submitting={sending}
+          onError={setError}
+          placeholder="Ask your tutor…"
         />
-        <View style={styles.actions}>
-          <PrimaryButton
-            label={
-              recState.isRecording
-                ? "Stop"
-                : transcribing
-                  ? "…"
-                  : "Voice"
-            }
-            variant="accent"
-            onPress={() => void toggleRecord()}
-            disabled={busy && !recState.isRecording}
-          />
-          <PrimaryButton
-            label={sending ? "…" : "Send"}
-            onPress={() => void sendMessage(text)}
-            disabled={busy || !text.trim()}
-          />
-        </View>
       </View>
     </Screen>
   );
@@ -242,12 +140,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
     marginBottom: space[2],
   },
-  composer: { gap: space[2], paddingBottom: space[4] },
-  input: {
-    minHeight: 72,
-    borderRadius: radius.button,
-    padding: space[3],
-    fontFamily: "DMSans_400Regular",
-  },
-  actions: { flexDirection: "row", gap: space[2] },
+  composerWrap: { paddingBottom: space[4] },
 });

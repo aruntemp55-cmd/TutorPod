@@ -6,7 +6,7 @@
 | R003 Dropdowns Standard→Section→Chapter | F004 | Home | GET catalog …/sections/… | Dropdown; HomeScreen | Sprint2 T020/T021 guest browse |
 | R005 Start podcast hierarchy + hosts | F005 | StartPodcast | POST /pods | StartPodcastScreen; pods.ts; podcastAudio.ts | start+stream; providers.test (mock TTS); T031 |
 | R008 Streamed player | F007 | Player | GET /pods/:id/audio | PlayerScreen; storage cache | stream test; playerControls |
-| R009 Raise-hand pause + AI | F008 | Player modal | POST …/questions | PlayerScreen; qa.ts (OpenAI or stub) | Sprint4 T040; providers.test; Maestro raise-hand |
+| R009 Raise-hand pause + AI | F008 | Player modal (S011) | POST …/questions; voice via POST /ask/transcribe | PlayerScreen; AskTutorComposer; qa.ts; stt.ts | Sprint4 T040; T086; Maestro raise-hand |
 | R010 Learning Path per section | F009 | Home pill | me/learning-paths | HomeScreen | Sprint4 T042; Maestro LP gate |
 | R017 Guest browse | F004 | Home | public catalog | HomeScreen | guest browse; Maestro catalog_home_browse |
 | R019 Admin default screen | F002 | Admin | user.role | OtpScreen; SplashScreen | admin login test |
@@ -64,8 +64,14 @@ See [`docs/p1-p2.md`](docs/p1-p2.md).
 | R024 Login-first | Login initial route | Splash→Login; LoginScreen | **Done** |
 | R025 Settings gate | Settings; `profileComplete` on `/me` | SettingsScreen; AuthContext | **Done** |
 | R026 Main tiles | Main | StudentMainScreen | **Done** |
-| R027 Ask any question | AskQuestion; `POST /api/v1/ask` + `/ask/transcribe` | AskQuestionScreen; ask.ts; stt.ts (Whisper / 503 fallback) | **Done** |
+| R027 Ask any question | AskQuestion; `POST /api/v1/ask` + `/ask/transcribe` | AskQuestionScreen; AskTutorComposer; ask.ts; stt.ts (Whisper / 503 fallback) | **Done** (T086 composer aligned) |
 | R028 Subject→topics | SubjectTopics | SubjectTopicsScreen | **Done** |
 | R029 Host default 2 | StartPodcast | `useState(2)` | **Done** |
 
 See [`docs/student-main-v3.md`](docs/student-main-v3.md).
+
+## Ask / raise-hand voice composer (T086)
+
+| Requirement | Task | Code | Test | Status |
+|---|---|---|---|---|
+| R009 + R027 voice+text UX | T086 | `AskTutorComposer`; Player raise-hand; AskQuestionScreen; shared `ask/transcribe` | `ask/audioMeta.test.ts`; Maestro send; API STT reuse | **Done** |

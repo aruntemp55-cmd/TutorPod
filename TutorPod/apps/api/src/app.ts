@@ -14,7 +14,11 @@ import { ensureStorage } from "./storage.js";
 export async function buildApp() {
   ensureStorage();
   const app = Fastify({ logger: true });
-  await app.register(cors, { origin: true });
+  await app.register(cors, {
+    origin: true,
+    // Default is GET,HEAD,POST — web clients need PATCH for /api/v1/me.
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  });
 
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof ZodError) {

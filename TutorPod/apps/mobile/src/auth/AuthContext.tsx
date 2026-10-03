@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { api } from "../api/client";
@@ -36,6 +37,8 @@ const KEY = "tutorpod.session";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const sessionRef = useRef<Session | null>(null);
+  sessionRef.current = session;
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const persist = useCallback(async (s: Session | null) => {
+    sessionRef.current = s;
     setSession(s);
     if (s) await kvSet(KEY, JSON.stringify(s));
     else await kvDelete(KEY);
@@ -90,50 +94,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    const current = sessionRef.current;
     try {
-      if (session) {
+      if (current) {
         await api("/api/v1/auth/logout", {
           method: "POST",
-          token: session.accessToken,
-          body: { refreshToken: session.refreshToken },
+          token: current.accessToken,
+          body: { refreshToken: current.refreshToken },
         });
       }
     } catch {
       /* ignore */
     }
     await persist(null);
-  }, [persist, session]);
+  }, [persist]);
 
+  // Keep callbacks stable (session via ref) so Settings useEffect([token, refreshProfile])
+  // does not re-fire on every persist and hammer /api/v1/me.
   const refreshProfile = useCallback(async () => {
-    if (!session) return;
-    const user = await api<User>("/api/v1/me", { token: session.accessToken });
-    await persist({ ...session, user });
-  }, [persist, session]);
+    const current = sessionRef.current;
+    if (!current) return;
+    const user = await api<User>("/api/v1/me", {
+      token: current.accessToken,
+    });
+    await persist({ ...current, user });
+  }, [persist]);
 
   const updateStandard = useCallback(
     async (standardId: string) => {
-      if (!session) return;
+      const current = sessionRef.current;
+      if (!current) return;
       const user = await api<User>("/api/v1/me", {
         method: "PATCH",
-        token: session.accessToken,
+        token: current.accessToken,
         body: { standardId },
       });
-      await persist({ ...session, user: { ...session.user, ...user } });
+      await persist({ ...current, user: { ...current.user, ...user } });
     },
-    [persist, session],
+    [persist],
   );
 
   const updateName = useCallback(
     async (name: string) => {
-      if (!session) return;
+      const current = sessionRef.current;
+      if (!current) return;
       const user = await api<User>("/api/v1/me", {
         method: "PATCH",
-        token: session.accessToken,
+        token: current.accessToken,
         body: { name },
       });
-      await persist({ ...session, user: { ...session.user, ...user } });
+      await persist({ ...current, user: { ...current.user, ...user } });
     },
-    [persist, session],
+    [persist],
   );
 
   const value = useMemo<AuthContextValue>(

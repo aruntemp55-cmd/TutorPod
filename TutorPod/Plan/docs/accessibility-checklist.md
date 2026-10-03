@@ -25,7 +25,8 @@ Spot-check on iOS VoiceOver and Android TalkBack before store submission.
 ## Player / raise-hand
 - [x] Raise hand control `accessibilityLabel="Raise hand"`
 - [x] Transport: ±10 and play/pause are pressable with text glyphs
-- [x] Ask sheet title + Submit / Resume listening labeled
+- [x] Ask sheet title + Resume listening / Close without resuming labeled
+- [x] AskTutorComposer: Dictate, Start voice input, Send question, Cancel recording, Stop recording
 - [ ] Seek bar: announce position/duration (manual enhancement if needed)
 
 ## Contrast / theme notes

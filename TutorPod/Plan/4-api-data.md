@@ -271,6 +271,7 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 - **Request:** `{ "questionText": "Why does nucleophilic addition…?" }`
 - **Response:** Question (`pending` then client may poll, or wait for sync answer)
 - **MVP:** `[ASSUMPTION: synchronous HTTP wait up to 25s returning answered|failed; client timeout 30s.]`
+- **Voice path (client):** record audio → `POST /api/v1/ask/transcribe` → use `transcript` as `questionText` here. No separate raise-hand upload endpoint.
 - **Errors:** `401`; `400` empty; `429`; `503` AI unavailable
 
 ### GET /pods/:podId/questions
@@ -278,6 +279,19 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 - **Query:** `limit` default 20
 - **Response:** `{ "items": Question[] }` newest first
 - **Errors:** `401`
+
+### POST /api/v1/ask
+- **Auth:** required
+- **Request:** `{ "message": string, "history"?: { role, content }[] }`
+- **Response:** `{ "answer": string, "provider": "openai" | "stub" }`
+- **Errors:** `401`; `400`; `429`; `503 AI_UNAVAILABLE`
+
+### POST /api/v1/ask/transcribe
+- **Auth:** required
+- **Request:** multipart form field `file` (audio; max 10MB; m4a/mp3/wav/webm/…)
+- **Response:** `{ "transcript": string, "provider": "openai" | "mock" }`
+- **Behavior:** OpenAI Whisper when `OPENAI_API_KEY` set; otherwise `503 STT_UNAVAILABLE` (no fake transcript — student types). Used by **Ask** and **Raise-hand** composers.
+- **Errors:** `401`; `400` validation; `503 STT_UNAVAILABLE` | `STT_FAILED`
 
 ## Cross-cutting
 - **Pagination:** Cursor-based on `/pods`.
@@ -305,5 +319,6 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 | S008 | GET /pods/:id, PUT progress, PUT reaction (**auth**) | Player listen |
 | S009 | GET learning-paths, PUT me/learning-paths/:subjectId (**auth**) | Path create/select |
 | S010 | GET /pods (**auth**) | MyPods listen library |
-| S011 | POST/GET …/questions (**auth**) | Raise-hand |
+| S011 | POST/GET …/questions (**auth**); voice via POST /ask/transcribe | Raise-hand text+voice |
+| S027 Ask | POST /ask; POST /ask/transcribe | Standalone ask chat+voice |
 | S012 | GET/PATCH /me, POST logout (**auth**) | Account |

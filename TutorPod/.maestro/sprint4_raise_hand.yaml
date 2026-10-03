@@ -39,8 +39,11 @@ appId: com.seyon.tutorpod
 - extendedWaitUntil:
     visible: "Ask your tutor"
     timeout: 10000
+- tapOn:
+    id: "ask-text-input"
 - inputText: "What is the key idea here?"
-- tapOn: "Submit"
+- tapOn:
+    id: "ask-send"
 - extendedWaitUntil:
     visible: ".*Focus on|Great question|Answer|try again.*"
     timeout: 20000
