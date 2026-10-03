@@ -1,0 +1,44 @@
+# Sprint 3 T031–T034 — Start podcast → Generating → Player (auth)
+# Prerequisites: logged-out app; flow signs in first via Account OTP
+# Run: maestro test .maestro/pods_start_player.yaml
+appId: com.seyon.tutorpod
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 45000
+- runFlow:
+    when:
+      visible: "Next"
+    commands:
+      - tapOn: "Next"
+      - tapOn: "Next"
+      - tapOn: "Get started"
+- tapOn: "Account"
+- tapOn: "Sign in"
+- extendedWaitUntil:
+    visible: "Continue"
+    timeout: 15000
+- inputText: "maestro-pods@example.com"
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Enter code"
+    timeout: 20000
+- inputText: "000000"
+- tapOn: "Verify"
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 25000
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "Start podcast"
+    timeout: 20000
+- tapOn: "Start podcast"
+- extendedWaitUntil:
+    visible: "Audio Overview"
+    timeout: 15000
+- tapOn: "Start podcast"
+- extendedWaitUntil:
+    visible: ".*Generating|Player|↺10|Raise hand.*"
+    timeout: 45000

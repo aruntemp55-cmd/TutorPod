@@ -1,0 +1,22 @@
+{
+  "name": "tutorpod",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "api": "npm run dev -w @tutorpod/api",
+    "api:migrate": "npm run migrate -w @tutorpod/api",
+    "api:seed": "npm run seed -w @tutorpod/api",
+    "api:test": "npm run test -w @tutorpod/api",
+    "mobile": "npm run start -w @tutorpod/mobile",
+    "mobile:lint": "npm run lint -w @tutorpod/mobile",
+    "setup": "npm install && npm run api:migrate && npm run api:seed",
+    "test:mobile-auth": "npm run test -w @tutorpod/mobile",
+    "mobile:test:auth": "npm run test:auth -w @tutorpod/mobile",
+    "mobile:test": "npm run test -w @tutorpod/mobile",
+    "ci": "npm run api:test && npm run mobile:lint && npm run mobile:test",
+    "test:ci": "npm run ci",
+    "maestro:critical": "maestro test .maestro/critical_journey.yaml"
+  }
+}

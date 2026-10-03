@@ -1,0 +1,38 @@
+# Sprint 1 T011 — Auth happy path (student OTP)
+# Prerequisites: API :4010 + Expo app (bundleId com.seyon.tutorpod)
+# Run: maestro test .maestro/auth_login.yaml
+appId: com.seyon.tutorpod
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 45000
+- runFlow:
+    when:
+      visible: "Next"
+    commands:
+      - tapOn: "Next"
+      - tapOn: "Next"
+      - tapOn: "Get started"
+- tapOn: "Account"
+- tapOn: "Sign in"
+- extendedWaitUntil:
+    visible: "Continue"
+    timeout: 15000
+- tapOn:
+    id: "Email"
+    optional: true
+- tapOn:
+    text: "Email"
+    optional: true
+- inputText: "maestro-student@example.com"
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Enter code"
+    timeout: 20000
+- inputText: "000000"
+- tapOn: "Verify"
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 25000

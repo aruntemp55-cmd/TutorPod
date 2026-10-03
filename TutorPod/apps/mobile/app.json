@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Tutor Pod",
+    "slug": "tutorpod",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#121316"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.seyon.tutorpod"
+    },
+    "android": {
+      "package": "com.seyon.tutorpod",
+      "adaptiveIcon": {
+        "backgroundColor": "#121316"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "sentryDsn": "",
+      "deepLinkBase": "https://tutorpod.app"
+    },
+    "scheme": "tutorpod",
+    "plugins": [
+      "expo-audio"
+    ]
+  }
+}

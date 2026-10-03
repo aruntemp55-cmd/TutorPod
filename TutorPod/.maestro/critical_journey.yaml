@@ -1,0 +1,7 @@
+# Sprint 5 T052 — Critical P0 journey: Login → Start → Play → Raise hand
+# Run: npm run maestro:critical
+#      OR maestro test .maestro/critical_journey.yaml
+appId: com.seyon.tutorpod
+---
+- runFlow:
+    file: sprint4_raise_hand.yaml

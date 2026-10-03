@@ -1,0 +1,25 @@
+# Sprint 2 T022 — Guest catalog browse on Home
+# Run: maestro test .maestro/catalog_home_browse.yaml
+appId: com.seyon.tutorpod
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 45000
+- runFlow:
+    when:
+      visible: "Next"
+    commands:
+      - tapOn: "Next"
+      - tapOn: "Next"
+      - tapOn: "Get started"
+- extendedWaitUntil:
+    visible: "All"
+    timeout: 20000
+- assertVisible: "Standard"
+- assertVisible: "Section"
+- assertVisible: "Chapter"
+- assertVisible: "Start podcast"
+- tapOn: "Home"
+- assertVisible: "Tutor Pod"

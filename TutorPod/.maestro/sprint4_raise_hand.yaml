@@ -1,0 +1,47 @@
+# Sprint 4 T041 — Raise-hand pause → ask → answer (auth)
+# Run: maestro test .maestro/sprint4_raise_hand.yaml
+appId: com.seyon.tutorpod
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 45000
+- runFlow:
+    when:
+      visible: "Next"
+    commands:
+      - tapOn: "Next"
+      - tapOn: "Next"
+      - tapOn: "Get started"
+- tapOn: "Account"
+- tapOn: "Sign in"
+- inputText: "maestro-raise@example.com"
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Enter code"
+    timeout: 20000
+- inputText: "000000"
+- tapOn: "Verify"
+- extendedWaitUntil:
+    visible: "Tutor Pod"
+    timeout: 25000
+- tapOn: "Home"
+- tapOn: "Start podcast"
+- extendedWaitUntil:
+    visible: "Audio Overview"
+    timeout: 15000
+- tapOn: "Start podcast"
+- extendedWaitUntil:
+    visible: "Raise hand"
+    timeout: 60000
+- tapOn: "Raise hand"
+- extendedWaitUntil:
+    visible: "Ask your tutor"
+    timeout: 10000
+- inputText: "What is the key idea here?"
+- tapOn: "Submit"
+- extendedWaitUntil:
+    visible: ".*Focus on|Great question|Answer|try again.*"
+    timeout: 20000
+- tapOn: "Resume listening"
