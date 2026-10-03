@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { useTheme } from "../theme/ThemeContext";
 import { radius, space } from "../theme/tokens";
 
+/** Pill keys for the unused HomeScreen catalog (v3 Main tiles replaced this). */
 export type PillKey = "all" | "mypods" | "learning" | "studio" | "search";
 
 export const HOME_PILLS: { key: PillKey; label: string }[] = [

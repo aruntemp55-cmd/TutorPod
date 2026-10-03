@@ -1,31 +1,13 @@
-# Sprint 2 T024 — Guest Play/Start never opens Player; soft-prompt only
+# v3: login is required; there is no guest Start/Learning Path soft-prompt.
 # Run: maestro test .maestro/catalog_soft_prompt_gate.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: "Tutor Pod"
+    visible:
+      id: "screen-login"
     timeout: 45000
-- runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
-- extendedWaitUntil:
-    visible: "Start podcast"
-    timeout: 30000
-- tapOn: "Start podcast"
-- extendedWaitUntil:
-    visible: "Sign in to listen"
-    timeout: 15000
-- tapOn: "Not now"
-- assertNotVisible: "Audio Overview"
-- tapOn: "Learning Path"
-- extendedWaitUntil:
-    visible: "Sign in to choose a learning path"
-    timeout: 15000
-- tapOn: "Not now"
-- assertVisible: "All"
+- assertVisible: "Sign in to continue"
+- assertNotVisible: "Start podcast"
+- assertNotVisible: "All"

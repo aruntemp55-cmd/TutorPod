@@ -1,3 +1,7 @@
+/**
+ * @deprecated Student v3: not on the live navigator. Login is initialRouteName.
+ * Prefer skippable copy on Login rather than this carousel.
+ */
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -29,10 +33,9 @@ export function OnboardingScreen({ navigation }: Props) {
   const [i, setI] = useState(0);
   const page = PAGES[i];
 
-  async function finish(goLogin: boolean) {
+  async function finish() {
     await onboardingFlag.setOnboardingDone();
-    if (goLogin) navigation.replace("Login", { reason: "Welcome to Tutor Pod" });
-    else navigation.replace("Main");
+    navigation.replace("Login", { reason: "Welcome to Tutor Pod" });
   }
 
   return (
@@ -51,13 +54,13 @@ export function OnboardingScreen({ navigation }: Props) {
         label={i < PAGES.length - 1 ? "Next" : "Get started"}
         onPress={() => {
           if (i < PAGES.length - 1) setI(i + 1);
-          else void finish(false);
+          else void finish();
         }}
       />
       <PrimaryButton
         label="Sign in"
         variant="accent"
-        onPress={() => void finish(true)}
+        onPress={() => void finish()}
       />
     </Screen>
   );

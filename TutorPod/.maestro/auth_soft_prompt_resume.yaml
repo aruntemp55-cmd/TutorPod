@@ -1,37 +1,16 @@
-# Sprint 1 T014 — Soft-prompt → OTP → resume Start podcast
+# v3: login-first. Guest soft-prompt resume is retired; this proves Start podcast after Login.
 # Run: maestro test .maestro/auth_soft_prompt_resume.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-resume@example.com"
+- tapOn: "Chemistry"
+- tapOn: "Play Some Basic Concepts of Chemistry"
 - extendedWaitUntil:
-    visible: "Start podcast"
-    timeout: 30000
-- tapOn: "Start podcast"
-- extendedWaitUntil:
-    visible: "Sign in to listen"
+    visible: "Audio Overview"
     timeout: 15000
-- tapOn: "Sign in"
-- extendedWaitUntil:
-    visible: "Continue"
-    timeout: 15000
-- inputText: "maestro-resume@example.com"
-- tapOn: "Continue"
-- extendedWaitUntil:
-    visible: "Enter code"
-    timeout: 20000
-- inputText: "000000"
-- tapOn: "Verify"
-- extendedWaitUntil:
-    visible: ".*podcast|Hosts|Audio Overview|Start.*"
-    timeout: 25000
+- assertVisible: "Start podcast"

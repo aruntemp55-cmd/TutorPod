@@ -1,28 +1,23 @@
-# Sprint 2 T023 — Bottom tabs Home / MyPods / Account
+# Sprint 2 T023 — Main tiles (v3; no Home/MyPods/Account tabs)
 # Run: maestro test .maestro/catalog_tabs.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
-- tapOn: "Account"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-tiles@example.com"
+- tapOn:
+    id: "tile-ask"
 - extendedWaitUntil:
-    visible: "Sign in"
-    timeout: 15000
-- tapOn: "Home"
+    visible:
+      id: "screen-ask"
+    timeout: 10000
+- tapOn: "← Back"
+- tapOn:
+    id: "tile-mypods"
 - extendedWaitUntil:
-    visible: "Start podcast"
-    timeout: 15000
-- tapOn: "MyPods"
-- extendedWaitUntil:
-    visible: ".*Sign in|MyPods|No pods.*"
-    timeout: 15000
+    visible: "My Pods"
+    timeout: 10000
+- tapOn: "← Back"

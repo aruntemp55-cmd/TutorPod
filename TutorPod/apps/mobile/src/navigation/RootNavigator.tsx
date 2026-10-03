@@ -5,10 +5,10 @@ import {
   DefaultTheme,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AccountScreen } from "../screens/AccountScreen";
 import { AdminScreen } from "../screens/AdminScreen";
 import { AskQuestionScreen } from "../screens/AskQuestionScreen";
 import { GeneratingScreen } from "../screens/GeneratingScreen";
+import { LearningPathScreen } from "../screens/LearningPathScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { MyPodsScreen } from "../screens/MyPodsScreen";
 import { OtpScreen } from "../screens/OtpScreen";
@@ -56,7 +56,7 @@ export function RootNavigator() {
         <Stack.Screen name="AskQuestion" component={AskQuestionScreen} />
         <Stack.Screen name="SubjectTopics" component={SubjectTopicsScreen} />
         <Stack.Screen name="MyPods" component={MyPodsScreen} />
-        <Stack.Screen name="Account" component={AccountScreen} />
+        <Stack.Screen name="LearningPath" component={LearningPathScreen} />
         <Stack.Screen name="Admin" component={AdminScreen} />
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Player" component={PlayerScreen} />

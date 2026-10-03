@@ -1,25 +1,20 @@
-# Sprint 2 T022 — Guest catalog browse on Home
+# Sprint 2 — Login-first Main catalog (subjects + start path), not guest Home pills
 # Run: maestro test .maestro/catalog_home_browse.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-browse@example.com"
+- assertVisible: "Ask any question"
+- assertVisible: "My Pods"
+- assertVisible: "Learning Path"
+- assertVisible: "Chemistry"
+- tapOn: "Chemistry"
 - extendedWaitUntil:
-    visible: "All"
-    timeout: 20000
-- assertVisible: "Standard"
-- assertVisible: "Section"
-- assertVisible: "Chapter"
+    visible: "Topics"
+    timeout: 15000
+- tapOn: "Play Some Basic Concepts of Chemistry"
 - assertVisible: "Start podcast"
-- tapOn: "Home"
-- assertVisible: "Tutor Pod"

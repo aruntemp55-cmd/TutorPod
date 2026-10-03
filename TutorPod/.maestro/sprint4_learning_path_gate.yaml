@@ -1,22 +1,23 @@
-# Sprint 4 T043/T046 — Guest Learning Path soft-prompt gate
+# T043 — Login-first Learning Path from Main (guest LP gate retired)
 # Run: maestro test .maestro/sprint4_learning_path_gate.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
-- tapOn: "Learning Path"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-lp@example.com"
+- tapOn:
+    id: "tile-learning"
 - extendedWaitUntil:
-    visible: "Sign in to choose a learning path"
+    visible:
+      id: "screen-learning-path"
     timeout: 15000
-- tapOn: "Not now"
-- assertVisible: "All"
+- assertVisible: "Learning Path"
+- tapOn: "Foundations Path"
+    optional: true
+- tapOn:
+    text: ".*Path.*"
+    optional: true
+- assertNotVisible: "Sign in to choose a learning path"

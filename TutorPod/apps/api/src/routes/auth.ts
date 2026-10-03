@@ -9,6 +9,11 @@ import {
 import { query } from "../db/pool.js";
 import { isProfileComplete } from "../domain/profile.js";
 import { AppError } from "../errors.js";
+import {
+  issueOtpCode,
+  rejectStubOtpInProd,
+  stubOtpCode,
+} from "../auth/otp.js";
 
 type DbUser = {
   id: string;
@@ -37,18 +42,25 @@ export async function authRoutes(app: FastifyInstance) {
   app.post("/api/v1/auth/otp/request", async (req) => {
     const body = z.object({ email: z.string().email() }).parse(req.body);
     const email = body.email.toLowerCase();
-    const code =
-      config.nodeEnv === "production"
-        ? String(Math.floor(100000 + Math.random() * 900000))
-        : config.otpStubCode;
+    // Non-prod: OTP_STUB_CODE (000000) for Maestro/local. Production: random,
+    // never the stub. Codes are stored only — no SMS/email provider is wired.
+    const issued = issueOtpCode({
+      nodeEnv: process.env.NODE_ENV ?? config.nodeEnv,
+      stubCode: stubOtpCode(config.otpStubCode),
+    });
     const expires = new Date(Date.now() + 5 * 60 * 1000);
     await query(
       `INSERT INTO otp_codes (email, code, expires_at) VALUES ($1,$2,$3)
        ON CONFLICT (email) DO UPDATE SET code=$2, expires_at=$3`,
-      [email, code, expires.toISOString()],
+      [email, issued.code, expires.toISOString()],
     );
-    if (config.nodeEnv !== "production") {
-      app.log.info({ email, code }, "OTP stub issued");
+    if (issued.mode === "stub") {
+      app.log.info({ email, code: issued.code }, "OTP stub issued (non-production)");
+    } else {
+      app.log.info(
+        { email },
+        "OTP generated (production). Remaining ops: deliver via SMS/email provider — not implemented.",
+      );
     }
     return { ok: true, expiresInSec: 300 };
   });
@@ -63,6 +75,15 @@ export async function authRoutes(app: FastifyInstance) {
       [email],
     );
     const row = rows[0];
+    const prod = process.env.NODE_ENV ?? config.nodeEnv;
+    if (
+      rejectStubOtpInProd(body.code, {
+        nodeEnv: prod,
+        stubCode: stubOtpCode(config.otpStubCode),
+      })
+    ) {
+      throw new AppError(401, "INVALID_OTP", "Invalid or expired code");
+    }
     if (!row || row.code !== body.code || new Date(row.expires_at) < new Date()) {
       throw new AppError(401, "INVALID_OTP", "Invalid or expired code");
     }

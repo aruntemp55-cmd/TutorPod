@@ -1,6 +1,26 @@
 # User Flows — Tutor Pod
 
-## Flow map (tree)
+## Flow map (tree) — **v3 current (login-first)**
+
+```text
+App Launch → Login (initialRouteName)
+ ↓
+OTP (000000 in non-prod)
+ ↓
+Settings if name/Standard missing
+ ↓
+Student Main (tiles)
+ ├── Search → Start podcast / topics / Player
+ ├── Ask any question
+ ├── My Pods → Player
+ ├── Learning Path → select path → Start podcast
+ └── Subject tiles → topics → Start podcast → Generating → Player → Raise hand (modal)
+Settings (avatar) → Log out → Login
+```
+
+Legacy guest Home / Onboarding / Account tabs are **not** live. Historical guest flows remain below as archive.
+
+## Flow map (tree) — v2 archive
 
 ```text
 App Launch

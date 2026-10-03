@@ -1,3 +1,7 @@
+/**
+ * @deprecated Player raise-hand modal (`PlayerScreen`) is the live source of truth.
+ * This full-screen route is not registered in RootNavigator.
+ */
 import React, { useEffect, useState } from "react";
 import {
   FlatList,

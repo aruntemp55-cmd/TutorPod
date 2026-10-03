@@ -1,21 +1,15 @@
-# Sprint 3 T033 — MyPods guest CTA / auth list entry
+# Sprint 3 T033 — Login-first My Pods tile
 # Run: maestro test .maestro/pods_mypods.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
-- tapOn: "MyPods"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-mypods@example.com"
+- tapOn:
+    id: "tile-mypods"
 - extendedWaitUntil:
-    visible: "Sign in to play your pods"
+    visible: ".*My Pods|No pods.*"
     timeout: 15000
-- assertVisible: "Sign in"

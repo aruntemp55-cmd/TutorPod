@@ -675,6 +675,10 @@ describe("Tutor Pod API v2", () => {
       "expected catalog hits for chem",
     );
     assert.equal(body.pods.length, 0);
+    if (body.chapters.length) {
+      assert.ok(body.chapters[0].standardId);
+      assert.ok(body.chapters[0].sectionId);
+    }
   });
 
   it("P1 T071 share link for owned pod", async () => {

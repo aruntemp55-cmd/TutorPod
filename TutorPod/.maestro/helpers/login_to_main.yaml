@@ -1,0 +1,37 @@
+# Shared: Login (email + OTP 000000) → Settings gate if needed → Main.
+# Pass STUDENT_EMAIL via runFlow env.
+appId: com.seyon.tutorpod
+---
+- extendedWaitUntil:
+    visible:
+      id: "screen-login"
+    timeout: 45000
+- tapOn:
+    id: "input-email"
+- eraseText
+- inputText: ${STUDENT_EMAIL}
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Enter code"
+    timeout: 20000
+- tapOn:
+    id: "input-otp"
+- eraseText
+- inputText: "000000"
+- tapOn: "Verify"
+- runFlow:
+    when:
+      visible: "Complete your settings"
+    commands:
+      - tapOn:
+          id: "input-student-name"
+      - eraseText
+      - inputText: "Maestro"
+      - tapOn:
+          id: "standard-CBSE-11"
+      - tapOn: "Continue"
+- extendedWaitUntil:
+    visible:
+      id: "screen-main"
+    timeout: 25000
+- assertVisible: "Ask any question"

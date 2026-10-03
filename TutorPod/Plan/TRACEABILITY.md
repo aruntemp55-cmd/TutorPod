@@ -2,22 +2,24 @@
 
 | Requirement | User Flow | Screen | API | Code | Test |
 |---|---|---|---|---|---|
-| R001 Auth gates listen + Learning Path | F002, F012 | S014, Login | pods/*, learning-paths auth | middleware; LoginSoftPrompt; requireAuthForAction | API 401; Sprint3 T036; Maestro soft-prompt |
-| R003 Dropdowns Standard→Section→Chapter | F004 | Home | GET catalog …/sections/… | Dropdown; HomeScreen | Sprint2 T020/T021 guest browse |
-| R005 Start podcast hierarchy + hosts | F005 | StartPodcast | POST /pods | StartPodcastScreen; pods.ts; podcastAudio.ts | start+stream; providers.test (mock TTS); T031 |
-| R008 Streamed player | F007 | Player | GET /pods/:id/audio | PlayerScreen; storage cache | stream test; playerControls |
-| R009 Raise-hand pause + AI | F008 | Player modal (S011) | POST …/questions; voice via POST /ask/transcribe | PlayerScreen; AskTutorComposer; qa.ts; stt.ts | Sprint4 T040; T086; Maestro raise-hand |
-| R010 Learning Path per section | F009 | Home pill | me/learning-paths | HomeScreen | Sprint4 T042; Maestro LP gate |
-| R017 Guest browse | F004 | Home | public catalog | HomeScreen | guest browse; Maestro catalog_home_browse |
-| R019 Admin default screen | F002 | Admin | user.role | OtpScreen; SplashScreen | admin login test |
+| R001 Auth gates listen + Learning Path | F002 | Login, Main | pods/*, learning-paths auth | middleware; RootNavigator Login-first | API 401; Maestro login |
+| R002 Main tiles (was Home pills) | F004 | **Main** | catalog sections | StudentMainScreen tiles | mainTabs.test |
+| R003 Subjects from Standard | F004 | SubjectTopics | GET …/sections/… | SubjectTopicsScreen | Sprint2 catalog API |
+| R005 Start podcast | F005 | StartPodcast | POST /pods | StartPodcastScreen | start+stream |
+| R008 Streamed player | F007 | Player | GET /pods/:id/audio | PlayerScreen | stream; playerControls |
+| R009 Raise-hand pause + AI | F008 | **Player modal** (S011) | POST …/questions; `/ask/transcribe` | PlayerScreen; AskTutorComposer | Sprint4 T040; Maestro raise-hand |
+| R010 Learning Path per section | F009 | **LearningPath from Main** | me/learning-paths | LearningPathScreen | Sprint4 T042; Maestro LP |
+| R017 Guest browse | — | **Superseded R024** | public catalog still exists | HomeScreen **unregistered** | — |
+| R019 Admin default screen | F002 | Admin | user.role | OtpScreen | admin login test |
 | R020 Admin CRUD Standard/Section | — | Admin | /admin/standards|sections | AdminScreen; admin.ts | admin CRUD test |
 | R021 PDF upload | — | Admin | POST …/pdf | AdminScreen FormData | multipart test |
 | R022 Generate chapters | — | Admin | POST …/generate-chapters | chapterGen.ts (OpenAI or stub) | admin generate test; providers.test |
 | R023 Edit/delete chapters | — | Admin | PATCH/DELETE chapters | AdminScreen | patch test |
 
 ## AI / media providers
-- **OpenAI** (env-gated via `OPENAI_API_KEY`): Q&A (`services/qa.ts`), PDF→chapters (`services/chapterGen.ts` + `pdf-parse`), podcast TTS (`services/podcastAudio.ts`)
-- **Fallback without key:** heuristic chapter stub, stub Q&A, cached sample/seed MP3 — see [`docs/ai-providers.md`](docs/ai-providers.md)
+- **OpenAI** when `OPENAI_API_KEY` is set: Q&A (`qa.ts` / `ask.ts`), Whisper (`stt.ts`), PDF chapters, podcast TTS (`podcastAudio.ts`)
+- **Without key:** stub Q&A/Ask; `503 STT_UNAVAILABLE` (type instead); sample podcast MP3 — app must not crash. See [`docs/ai-providers.md`](docs/ai-providers.md)
+- **OTP:** non-prod stub `000000`; production never accepts stub; SMS/email delivery is remaining ops work
 - Telemetry: `telemetry/sentry.ts` no-op without `EXPO_PUBLIC_SENTRY_DSN`
 
 ## Sprint 5 — Quality gate (status)
@@ -26,7 +28,7 @@
 |---|---|---|
 | T050 Domain unit suite | **Done** | `apps/api/src/domain/podLimits.ts`; `apps/mobile/src/domain/podLimits.ts` + tests |
 | T051 API integration in CI | **Done** | `npm run api:test`; `.github/workflows/ci.yml` |
-| T052 E2E critical journey | **Done** | `.maestro/critical_journey.yaml` → raise-hand journey; headless `npm run ci` |
+| T052 E2E critical journey | **Done** | `.maestro/critical_journey.yaml` login-first raise-hand; CI does **not** run Maestro; `npm run maestro:critical` |
 | T053 Accessibility | **Done** | [`docs/accessibility-checklist.md`](docs/accessibility-checklist.md); FilterPills/Waveform/Player labels |
 | T054 TRACEABILITY filled | **Done** | This file — P0 rows linked to code + tests |
 
@@ -39,12 +41,12 @@ See Sprint 1–4 status sections in git history / plan; all marked **Done** in [
 
 | Requirement | Task | API / Code | Test | Status |
 |---|---|---|---|---|
-| R013 Search | T070 | GET `/api/v1/search`; Home Search pill | auth-catalog-pods T070 | **Done** |
+| R013 Search | T070 | GET `/api/v1/search` chapters include standardId; **Main search navigates** | auth-catalog-pods T070; searchHits.test | **Done** |
 | R014 Share | T071 | GET `/pods/:id/share`; Player/MyPods Share | T071 API + deepLink unit | **Done** |
 | R015 Offline | T072 | `offline/download.ts`; MyPods ↓; Player prefers file | download.test | **Done** (foreground only) |
-| R016 Studio | T073 | Studio pill grid; Audio + Study briefing | FilterPills.test | **Done** (flashcards/quiz soon) |
+| R016 Studio | T073 | Unused HomeScreen studio pill | FilterPills.test | **Done** (not on live Main) |
 | Pod ready notify | T074 | `notifications/podReady.ts`; Generating banner | podReady.test | **Partial** (local/in-app; no APNs/FCM) |
-| Guest LP teaser | T075 | Public learning-paths list; select soft-prompt | T075 API + Home | **Done** |
+| Guest LP teaser | T075 | **Superseded** — LP from Main after login | T042 API | **Done** |
 | Quotas / rate limits | T076 | `rateLimit.ts` on POST pods/questions | rateLimit.test + API 429 | **Done** |
 | S3 storage | T077 | `storage/s3.ts` + local fallback | storage-backend.test | **Done** (env-gated) |
 
@@ -54,7 +56,7 @@ See [`docs/p1-p2.md`](docs/p1-p2.md).
 
 | Feature | Code | Test | Status |
 |---|---|---|---|
-| Light / Dark / System | `theme/ThemeContext.tsx`, Account chips, `kvStore` key `tutorpod.themePreference` | `theme/preference.test.ts` | **Done** |
+| Light / Dark / System | `theme/ThemeContext.tsx`, Settings chips, `kvStore` key `tutorpod.themePreference` | `theme/preference.test.ts` | **Done** |
 | Semantic tokens | `theme/tokens.ts` (`darkColors` / `lightColors`), `useTheme().colors` | — | **Done** |
 
 ## Student UX v3 (login-first)
@@ -64,7 +66,7 @@ See [`docs/p1-p2.md`](docs/p1-p2.md).
 | R024 Login-first | Login initial route | Splash→Login; LoginScreen | **Done** |
 | R025 Settings gate | Settings; `profileComplete` on `/me` | SettingsScreen; AuthContext | **Done** |
 | R030 Settings logout | F013; S028; POST `/auth/logout` | SettingsScreen; `settingsLogout.ts`; AuthContext.signOut | **Done** (`settingsLogout.test.ts`) |
-| R026 Main tiles | Main | StudentMainScreen | **Done** |
+| R026 Main tiles | Main | StudentMainScreen (Ask, My Pods, **Learning Path**, subjects) | **Done** |
 | R027 Ask any question | AskQuestion; `POST /api/v1/ask` + `/ask/transcribe` | AskQuestionScreen; AskTutorComposer; ask.ts; stt.ts (Whisper / 503 fallback) | **Done** (T086 composer aligned) |
 | R028 Subject→topics | SubjectTopics | SubjectTopicsScreen | **Done** |
 | R029 Host default 2 | StartPodcast | `useState(2)` | **Done** |

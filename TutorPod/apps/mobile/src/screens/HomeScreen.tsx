@@ -1,3 +1,8 @@
+/**
+ * @deprecated Student v3: not on the live navigator.
+ * Learning Path is `LearningPathScreen` from Main. FilterPills stay here for
+ * historical P1 studio/search UX — do not restore this as the default home.
+ */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,

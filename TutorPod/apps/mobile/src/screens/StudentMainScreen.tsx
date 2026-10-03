@@ -20,6 +20,7 @@ import {
   Screen,
   Title,
 } from "../components/ui";
+import { searchHitDestination } from "../navigation/searchHits";
 import { useRootNav } from "../navigation/useRootNav";
 import { useTheme } from "../theme/ThemeContext";
 import { radius, space } from "../theme/tokens";
@@ -28,6 +29,7 @@ type SearchHit = {
   chapters: Chapter[];
   sections: Section[];
   standards: Standard[];
+  pods?: Array<{ id: string; title: string; status: string }>;
 };
 
 type MainTile =
@@ -158,25 +160,55 @@ export function StudentMainScreen() {
               kind: "subject" as const,
               section: s,
             })),
+            ...(hits.pods ?? []).map((p) => ({
+              id: p.id,
+              title: p.title,
+              kind: "pod" as const,
+            })),
           ]}
           keyExtractor={(i) => `${i.kind}-${i.id}`}
           renderItem={({ item }) => (
             <Pressable
               style={[styles.row, { borderBottomColor: colors.pill }]}
               onPress={() => {
-                if (item.kind === "subject" && item.section && user?.standardId) {
-                  nav.navigate("SubjectTopics", {
-                    standardId: user.standardId,
-                    sectionId: item.section.id,
-                    sectionName: item.section.name,
-                  });
+                const dest = searchHitDestination(
+                  item.kind === "topic" && item.chapter
+                    ? {
+                        kind: "topic",
+                        id: item.id,
+                        title: item.title,
+                        chapter: item.chapter,
+                      }
+                    : item.kind === "subject" && item.section
+                      ? {
+                          kind: "subject",
+                          id: item.id,
+                          title: item.title,
+                          section: item.section,
+                        }
+                      : { kind: "pod", id: item.id, title: item.title },
+                  user?.standardId ?? null,
+                );
+                if (!dest) return;
+                if (dest.name === "StartPodcast") {
+                  nav.navigate("StartPodcast", dest.params);
+                } else if (dest.name === "SubjectTopics") {
+                  nav.navigate("SubjectTopics", dest.params);
+                } else {
+                  nav.navigate("Player", dest.params);
                 }
               }}
             >
               <Text style={[styles.tileTitle, { color: colors.text }]}>
                 {item.title}
               </Text>
-              <Meta>{item.kind === "topic" ? "Topic" : "Subject"}</Meta>
+              <Meta>
+                {item.kind === "topic"
+                  ? "Topic"
+                  : item.kind === "subject"
+                    ? "Subject"
+                    : "Pod"}
+              </Meta>
             </Pressable>
           )}
           ListEmptyComponent={
@@ -196,6 +228,11 @@ export function StudentMainScreen() {
                 key: "mypods",
                 title: "My Pods",
                 body: "Your podcast library",
+              },
+              {
+                key: "learning",
+                title: "Learning Path",
+                body: "Pick a path, then start topics",
               },
               ...subjects.map((s) => ({
                 key: `sub-${s.id}`,
@@ -218,6 +255,7 @@ export function StudentMainScreen() {
               onPress={() => {
                 if (item.key === "ask") nav.navigate("AskQuestion");
                 else if (item.key === "mypods") nav.navigate("MyPods");
+                else if (item.key === "learning") nav.navigate("LearningPath");
                 else if (item.section && user?.standardId) {
                   nav.navigate("SubjectTopics", {
                     standardId: user.standardId,

@@ -1,33 +1,19 @@
-# Sprint 4 T041 — Raise-hand pause → ask → answer (auth)
+# Sprint 4 T041 — Login-first: OTP → Settings if needed → Main → subject → Player → Raise hand
 # Run: maestro test .maestro/sprint4_raise_hand.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
-- tapOn: "Account"
-- tapOn: "Sign in"
-- inputText: "maestro-raise@example.com"
-- tapOn: "Continue"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-raise@example.com"
+- tapOn: "Chemistry"
 - extendedWaitUntil:
-    visible: "Enter code"
-    timeout: 20000
-- inputText: "000000"
-- tapOn: "Verify"
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 25000
-- tapOn: "Home"
-- tapOn: "Start podcast"
+    visible:
+      id: "screen-topics"
+    timeout: 15000
+- tapOn: "Play Some Basic Concepts of Chemistry"
 - extendedWaitUntil:
     visible: "Audio Overview"
     timeout: 15000
@@ -48,3 +34,8 @@ appId: com.seyon.tutorpod
     visible: ".*Focus on|Great question|Answer|try again.*"
     timeout: 20000
 - tapOn: "Resume listening"
+- tapOn: "←"
+    optional: true
+- tapOn:
+    id: "button-back-main"
+    optional: true

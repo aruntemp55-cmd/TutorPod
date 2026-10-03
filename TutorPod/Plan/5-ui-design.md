@@ -81,7 +81,7 @@ Light mode: P2 — not required for MVP.
 - Avoid card-in-card clutter; one job per section.
 
 ### Navigation
-- **FilterPills:** All / MyPods / Learning Path.
+- **FilterPills:** Unused on live Main (kept on deprecated HomeScreen). Live filters are Main tiles: Ask / My Pods / Learning Path / subjects.
 - **BottomTabs:** Home / MyPods / Account — active icon on white pill background (screenshot Studio treatment).
 - **Stack headers:** back, title truncate, optional actions.
 
@@ -120,21 +120,25 @@ Respect `prefers-reduced-motion`: static waveform, instant sheet.
 ```text
 App
  ├── navigation/
-│   ├── RootNavigator
-│   ├── AuthStack
-│   └── MainTabs (Home | MyPods | Account)
+ │   └── RootNavigator (Login initial; no bottom tabs)
 ├── screens/
-│   ├── SplashScreen
-│   ├── OnboardingScreen
+│   ├── SplashScreen             # available, not initial
 │   ├── LoginScreen
 │   ├── OtpScreen
-│   ├── SettingsScreen          # v3 name/Standard/appearance + Log out
+│   ├── SettingsScreen           # live profile + logout
 │   ├── StudentMainScreen
-│   ├── HomeScreen
+│   ├── LearningPathScreen       # from Main tile
+│   ├── AskQuestionScreen
+│   ├── SubjectTopicsScreen
 │   ├── MyPodsScreen
-│   ├── LearningPathScreen
-│   ├── PlayerScreen
-│   └── AccountScreen
+│   ├── StartPodcastScreen
+│   ├── GeneratingScreen
+│   ├── PlayerScreen             # raise-hand modal SoT
+│   ├── AdminScreen
+│   ├── HomeScreen               # DEPRECATED unregistered
+│   ├── OnboardingScreen         # DEPRECATED unregistered
+│   ├── AccountScreen            # DEPRECATED unregistered
+│   └── RaiseHandScreen          # DEPRECATED; Player modal is SoT
 ├── components/
 │   ├── FilterPills
 │   ├── ChapterTile

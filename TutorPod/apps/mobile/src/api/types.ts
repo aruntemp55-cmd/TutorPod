@@ -5,6 +5,8 @@ export type Chapter = {
   id: string;
   sectionId?: string;
   subjectId?: string;
+  standardId?: string;
+  sectionName?: string;
   title: string;
   synopsis?: string | null;
   imageUrl: string;

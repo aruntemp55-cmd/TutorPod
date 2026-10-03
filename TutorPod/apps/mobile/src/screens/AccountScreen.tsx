@@ -1,3 +1,7 @@
+/**
+ * @deprecated v3 profile is SettingsScreen. This file is not registered.
+ * If re-registered, logout must reset to Login (R030).
+ */
 import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { api } from "../api/client";
@@ -12,6 +16,7 @@ import {
   Title,
 } from "../components/ui";
 import { useRootNav } from "../navigation/useRootNav";
+import { settingsLogoutReset } from "../navigation/settingsLogout";
 import { useTheme } from "../theme/ThemeContext";
 import { THEME_OPTIONS, type ThemePreference } from "../theme/preference";
 import { radius, space } from "../theme/tokens";
@@ -171,7 +176,10 @@ export function AccountScreen() {
       <PrimaryButton
         label="Log out"
         variant="accent"
-        onPress={() => void signOut()}
+        testID="button-logout"
+        onPress={() =>
+          void signOut().then(() => nav.reset(settingsLogoutReset()))
+        }
       />
     </Screen>
   );

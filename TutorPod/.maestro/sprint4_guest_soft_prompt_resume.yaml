@@ -1,35 +1,16 @@
-# Sprint 4 T046 — Guest browse → Start soft-prompt → login → resume Start podcast
+# v3: guest start-podcast resume retired; Login-first Start podcast
 # Run: maestro test .maestro/sprint4_guest_soft_prompt_resume.yaml
 appId: com.seyon.tutorpod
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Tutor Pod"
-    timeout: 45000
 - runFlow:
-    when:
-      visible: "Next"
-    commands:
-      - tapOn: "Next"
-      - tapOn: "Next"
-      - tapOn: "Get started"
-- assertVisible: "Start podcast"
-- tapOn: "Start podcast"
-- extendedWaitUntil:
-    visible: "Sign in to listen"
-    timeout: 15000
-- tapOn: "Sign in"
-- extendedWaitUntil:
-    visible: "Continue"
-    timeout: 15000
-- inputText: "maestro-s4-resume@example.com"
-- tapOn: "Continue"
-- extendedWaitUntil:
-    visible: "Enter code"
-    timeout: 20000
-- inputText: "000000"
-- tapOn: "Verify"
+    file: helpers/login_to_main.yaml
+    env:
+      STUDENT_EMAIL: "maestro-s4-resume@example.com"
+- tapOn: "Chemistry"
+- tapOn: "Play Some Basic Concepts of Chemistry"
 - extendedWaitUntil:
     visible: "Audio Overview"
     timeout: 25000
+- assertVisible: "Start podcast"

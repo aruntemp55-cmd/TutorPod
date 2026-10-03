@@ -12,7 +12,7 @@ export type RootStackParamList = {
     sectionName: string;
   };
   MyPods: undefined;
-  Account: undefined;
+  LearningPath: undefined;
   Player: { podId: string };
   Generating: { podId: string; chapterTitle: string };
   StartPodcast: {
@@ -21,9 +21,16 @@ export type RootStackParamList = {
     chapterId: string;
     chapterTitle: string;
   };
-  /** @deprecated kept for deep links / old tests */
+  /** @deprecated v3: Login is initial. Screen file kept, not registered. */
   Onboarding: undefined;
+  /**
+   * @deprecated v3: Student Main is home. FilterPills/HomeScreen kept for
+   * reference; Learning Path lives on LearningPath (from Main).
+   */
   Home: undefined;
   MyPodsTab: undefined;
+  /** @deprecated v3: Settings is the live profile. Not registered. */
+  Account: undefined;
+  /** @deprecated Player raise-hand modal is source of truth. Not registered. */
   RaiseHand: { podId: string };
 };

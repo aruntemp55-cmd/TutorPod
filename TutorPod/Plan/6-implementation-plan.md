@@ -30,7 +30,7 @@ Sprint status: **Done**
 | Task ID | Status | Description | Files/components | Dependencies | Acceptance | Tests |
 |---|---|---|---|---|---|---|
 | T010 | **Done** | OTP request/verify/refresh/logout | Auth routes, JWT | T003 | Login issues tokens | `auth-catalog-pods` Sprint1 T010 |
-| T011 | **Done** | Auth screens + secure token storage | S003, S004, session store | T001, T010 | Login works; guest can reach Home | Maestro `.maestro/auth_login.yaml` + API |
+| T011 | **Done** | Auth screens + secure token storage | S003, S004 | T001, T010 | Login-first OTP | Maestro `.maestro/auth_login.yaml` + API |
 | T012 | **Done** | Onboarding + Splash → Home All (guest OK) | S001, S002 | T011 | First-run lands on browse without forced login | `onboardingFlag.test.ts` + Maestro |
 | T013 | **Done** | Account GET/PATCH name & Standard; guest Sign in CTA | S012, `/me` | T010 | Auth profile; guest CTA | Sprint1 T013 API + AccountScreen |
 | T014 | **Done** | Login soft-prompt + `pendingAction` resume | S014, `LoginSoftPrompt`, auth store | T011 | Play/Start/Path resume after OTP | `pendingAction.test.ts` + Maestro soft-prompt |
@@ -44,7 +44,7 @@ Sprint status: **Done**
 |---|---|---|---|---|---|---|
 | T020 | **Done** | Seed Standards/Sections/Chapters + images | `seed.ts` | T003 | Chemistry pilot data present | Sprint2 T020 seed verification |
 | T021 | **Done** | Catalog APIs **public browse** (sections + subjects alias) | GET catalog/* | T020 | Guest 200; no audio in payload | Sprint2 T021 + guest browse |
-| T022 | **Done** | Home All + FilterPills + dropdowns (guest browse) | S005, FilterPills, ChapterTile, Dropdown | T002, T021 | Guest sees tiles; Play → soft-prompt | `FilterPills.test` + Maestro browse |
+| T022 | **Done** | *v2 Home pills* — unused HomeScreen; live catalog is Main subjects | FilterPills still unit-tested | T021 | Main tiles replace guest Home | `FilterPills.test` + Maestro browse (v3) |
 | T023 | **Done** | Bottom tabs Home/MyPods/Account | MainTabs | T011 | Tab navigation works | `mainTabs.test` + Maestro tabs |
 | T024 | **Done** | Wire Play/Start/Path through `requireAuthForAction` | ChapterTile, Start CTA, pills | T014, T022 | Guest never opens Player | `requireAuthForAction.test` + Maestro gate |
 
@@ -73,7 +73,7 @@ Sprint status: **Done**
 | T040 | **Done** | Questions API + stubbable LLM adapter | `qa.ts`, POST `/questions` | T030 | Answer or graceful fail | `qa.test` + Sprint4 T040 |
 | T041 | **Done** | Raise-hand sheet pauses audio | PlayerScreen modal | T034, T040 | Ask → answer → resume | Maestro `sprint4_raise_hand` |
 | T042 | **Done** | Learning path APIs + seed (auth) | catalog paths, `/me/learning-paths` | T020 | Select per section; guest 401 | Sprint4 T042 |
-| T043 | **Done** | Learning Path pill + guest CTA | HomeScreen pill / soft-prompt | T042, T014, T022 | Guest gated; auth select | Maestro learning-path gate |
+| T043 | **Done** | Learning Path from Main tile (login-first) | LearningPathScreen | T042, T082 | Auth select + start topic | Maestro `sprint4_learning_path_gate` |
 | T044 | **Done** | Empty/error/offline banners | EmptyState, ErrorBanner, OfflineBanner | T022+ | Critical screens covered | `ui.polish` + connectivity tests |
 | T045 | **Done** | Telemetry (Sentry-shaped, optional DSN) | `telemetry/sentry.ts` | T001 | No-op without DSN; events when set | `sentry.test` |
 | T046 | **Done** | E2E guest soft-prompt resume + LP gate | Maestro flows | T014, T024, T034, T043 | Both gates proven | `sprint4_guest_*` + LP gate |
@@ -118,7 +118,7 @@ Sprint status: **Done** with Partial where infra-limited
 
 | Task ID | Status | Description | Acceptance | Tests |
 |---|---|---|---|---|
-| T070 | **Done** | Search standards/sections/chapters (+ optional pods) | GET `/search`; Home Search UI | API search test |
+| T070 | **Done** | Search standards/sections/chapters (+ pods); Main navigates chapter hits | GET `/search` + searchHits | API search + searchHits.test |
 | T071 | **Done** | Share chapter/pod deep link + share sheet | Player/MyPods Share | unit share URL |
 | T072 | **Done** | Offline download pod audio + indicator (foreground) | Local cache; Player prefers file | offline store unit |
 | T073 | **Done** | Studio grid (Audio + Study briefing; others soon) | Studio pill/grid | FilterPills test |
@@ -137,7 +137,7 @@ Sprint status: **Done**
 | T080 | **Done** | Login-first entry; remove guest Main CTA |
 | T081 | **Done** | Mandatory Name+Standard Settings gate |
 | T087 | **Done** | Settings always shows Log out; reset to Login (R030) |
-| T082 | **Done** | Main tiles: Search, Ask, MyPods, subjects |
+| T082 | **Done** | Main tiles: Search, Ask, MyPods, **Learning Path**, subjects |
 | T083 | **Done** | Ask chat + voice; `POST /api/v1/ask/transcribe` (Whisper when keyed; graceful fallback) |
 | T084 | **Done** | Subject → topic tiles → Start (host default 2) |
 | T085 | **Done** | `POST /api/v1/ask` + profileComplete on `/me` |

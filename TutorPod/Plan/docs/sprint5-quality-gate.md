@@ -18,12 +18,11 @@ GitHub Actions: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) —
 Covered by `apps/api/tests/auth-catalog-pods.test.ts` + `qa.test.ts` (auth, catalog, pods, stream, Q&A, learning paths).
 
 ## E2E / Maestro (T052)
-Maestro is **optional** in CI (not installed in most runners). Flows live under [`.maestro/`](../../.maestro/).
+Maestro is **optional** and **not** installed on GitHub Actions. Use `npm run ci` headless; run Maestro locally:
 
-Critical journey (Login → Start → Player → Raise hand):
 ```bash
-maestro test .maestro/critical_journey.yaml
-# or directly:
+npm run maestro:critical
+# Login → Settings if needed → Main tiles → Chemistry → Start podcast → Player → Raise hand
 maestro test .maestro/sprint4_raise_hand.yaml
 ```
 

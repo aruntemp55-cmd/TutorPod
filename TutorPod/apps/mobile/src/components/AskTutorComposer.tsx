@@ -18,6 +18,7 @@ import {
 import { useTheme } from "../theme/ThemeContext";
 import { radius, space } from "../theme/tokens";
 import { transcribeRecording } from "../ask/transcribe";
+import { userFacingVoiceError } from "../ask/sttCopy";
 
 type Props = {
   value: string;
@@ -181,11 +182,7 @@ export function AskTutorComposer({
         await onSubmit(transcript);
       }
     } catch (e) {
-      reportError(
-        e instanceof Error
-          ? e.message
-          : "Could not transcribe audio. Type your question instead.",
-      );
+      reportError(userFacingVoiceError(e));
     } finally {
       setTranscribing(false);
     }

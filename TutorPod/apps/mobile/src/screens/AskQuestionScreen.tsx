@@ -82,8 +82,8 @@ export function AskQuestionScreen({ navigation }: Props) {
         Ask any question
       </Title>
       <Meta>
-        Type or use voice. Voice is transcribed with Whisper when OPENAI_API_KEY
-        is set on the API; otherwise type your question.
+        Type or use voice. Voice needs an OpenAI API key on the server; without
+        it, type your question instead.
       </Meta>
       {error ? <ErrorBanner message={error} /> : null}
       <FlatList

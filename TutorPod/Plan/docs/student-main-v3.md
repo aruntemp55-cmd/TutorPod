@@ -17,12 +17,12 @@ Login ──OTP──► Admin? ──yes──► Admin
                          │
                     Log out ──► Login
                          │
-         ┌───────────────┼───────────────┐
-         ▼               ▼               ▼
-      Search        Ask any question   My Pods
-         │               ▼               ▼
-         │          Ask chat+voice    MyPods list → Player
-         │          (Whisper STT)
+         ┌───────────────┼───────────────┬───────────────┐
+         ▼               ▼               ▼               ▼
+      Search        Ask any question   My Pods     Learning Path
+         │               ▼               ▼               ▼
+         │          Ask chat+voice    MyPods list     select path
+         │          (Whisper STT)        → Player     → Start podcast
          │
          ▼
    Subject tiles (for Settings standard)
@@ -30,6 +30,7 @@ Login ──OTP──► Admin? ──yes──► Admin
    Topic tiles (chapters)
          ▼
    Start podcast (host default 2) → Generating → Player
+   (Raise hand = Player modal, not RaiseHandScreen)
 ```
 
 ## Mandatory settings
@@ -43,6 +44,12 @@ Until both are set, Main is blocked (Settings only).
 - Continue/Save stays first; **Back to Main** only when the profile is complete.
 - Logout: `signOut()` (`POST /api/v1/auth/logout`) then `navigation.reset` to **Login**. Not guest Home.
 - Control: `testID=button-logout`, accessibility label “Log out”, accent button.
+
+## Unused screens (not registered)
+- **HomeScreen / FilterPills:** guest catalog; LP lives on `LearningPathScreen`.
+- **OnboardingScreen:** Login is initial.
+- **AccountScreen:** Settings is profile.
+- **RaiseHandScreen:** Player modal is source of truth.
 
 ## Ask voice STT
 1. Mobile ChatGPT-style composer records audio → `POST /api/v1/ask/transcribe` (multipart `file`)

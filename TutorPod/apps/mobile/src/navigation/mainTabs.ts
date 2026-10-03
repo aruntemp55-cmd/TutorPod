@@ -2,6 +2,7 @@
 export const MAIN_HOME_TILES = [
   { key: "ask", title: "Ask any question" },
   { key: "mypods", title: "My Pods" },
+  { key: "learning", title: "Learning Path" },
   { key: "subjects", title: "Subjects" },
 ] as const;
 

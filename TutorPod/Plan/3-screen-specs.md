@@ -4,21 +4,22 @@
 
 | ID | Screen | Purpose | Entry | Exit |
 |---|---|---|---|---|
-| S001 | Splash | Brand + session bootstrap | App launch | S002 / S005 |
-| S002 | Onboarding | First-run value props | S001 | S005 (browse) / S003 |
-| S003 | Login | Email entry (incl. soft-prompt) | Soft-prompt / Sign in / logout | S004 |
-| S004 | OTP Verify | Complete auth + resume pending | S003 | Resume target / S005 / S012 / **S028** |
-| S005 | Home (All) | Browse chapters (guest OK); gated Play/Start | Tabs / onboarding | S006 / S008 / S009 / S014 / S003 |
-| S006 | Start Podcast Sheet | Hosts + context + start (**auth**) | S005 / S009 | S007 / S008 / dismiss |
-| S007 | Generating | Wait for pod readiness | S006 | S008 / S010 |
-| S008 | Player | Full audio playback (**auth**) | S005 / S006 / S007 / S010 | S010 / S011 / back |
-| S009 | Learning Path | Select path (**auth**); guest → sign-in | Pill / S005 | S005 / S006 / S008 / S003 |
-| S010 | MyPods | Podcast library (**auth** to listen) | Pill / tab | S008 / S011 / S003 |
-| S011 | Raise-hand Q&A Sheet | Ask question; view answer (**auth**) | S008 / S010 | Prior screen |
-| S012 | Account | Name, Standard, logout / guest Sign in | Avatar / tab | S005 / **S003 (v3 logout)** |
-| S013 | Search (P1) | Search chapters/pods | S005 / S010 | Results → S005 / S008 |
-| S014 | Login soft-prompt sheet | Explain gate; continue to auth | Play/Start/Path/MyPods when guest | S003 / dismiss |
-| S028 | Settings | Student name, Standard, appearance, **Log out** | OTP incomplete / Main | Main / **Login on logout** |
+| S001 | Splash | Brand + session bootstrap | Deep link / unused as initial | S003 / S026 / S028 / Admin |
+| S002 | Onboarding | **Deprecated — not registered.** Login is initial. | — | S003 if ever shown |
+| S003 | Login | **Live initial route.** Email OTP | Launch / logout | S004 |
+| S004 | OTP Verify | Complete auth | S003 | S028 / S026 / Admin |
+| S005 | Home (All) | **Deprecated — not registered.** FilterPills catalog | — | — |
+| S006 | Start Podcast | Hosts + context + start | Topics / LP / search | S007 / S008 |
+| S007 | Generating | Wait for pod readiness | S006 | S008 |
+| S008 | Player | Streamed playback | S006 / S007 / S010 | S011 modal / back |
+| S009 | Learning Path | Select path per subject (**auth**) | **Main tile** | S006 / Main |
+| S010 | MyPods | Podcast library | Main tile | S008 / Main |
+| S011 | Raise-hand Q&A | **Player modal** (RaiseHandScreen unused) | S008 | Resume / close |
+| S012 | Account | **Deprecated — not registered.** Settings is profile | — | — |
+| S013 | Search | Main search field | S026 | S006 / topics / S008 |
+| S014 | Login soft-prompt | Legacy guest gate (unused in v3 login-first) | — | — |
+| S026 | Student Main | Tiles: Ask, My Pods, Learning Path, subjects | OTP / Settings | S009 / S010 / Ask / topics / S028 |
+| S028 | Settings | Name, Standard, appearance, **Log out** | OTP incomplete / Main | Main / Login |
 
 ## Screens
 
@@ -186,9 +187,9 @@
 ---
 
 ### S009 — Learning Path
-- **Purpose:** Choose path per subject; see ordered chapters. **UPDATED: create/select requires login.**
-- **Entry:** Pill Learning Path.
-- **Exit:** S006 / S008 (auth); S014/S003 (guest).
+- **Purpose:** Choose path per subject; see ordered chapters. **v3: auth-only from Student Main tile.**
+- **Entry:** Main **Learning Path** tile (`LearningPathScreen`, `testID=screen-learning-path`).
+- **Exit:** S006 Start podcast / back to Main.
 
 #### UI
 - **Guest:** Full-screen / inline sign-in CTA — “Sign in to choose a learning path” (no path list to select). `[ASSUMPTION: hard-block; no teaser path names.]`
@@ -317,18 +318,18 @@
 ---
 
 ### S013 — Search (P1)
-- **Purpose:** Find chapters or pods.
-- **Entry:** Search icon.
-- **Exit:** S005 / S008 / S010.
+- **Purpose:** Find chapters, subjects, or pods from Student Main.
+- **Entry:** `main-search` on S026.
+- **Exit:** S006 Start podcast (chapter hits), Subject topics (section hits), S008 Player (pod hits).
 
 #### UI
-- Search field; segmented Chapters | MyPods; result list.
+- Search field on Main; result rows labeled Topic / Subject / Pod.
 
 #### States
-- Default / Loading / Empty / Error.
+- Default tiles / Loading / Empty / Error.
 
 #### Interaction
-- Debounced query; tap result.
+- Debounced `GET /api/v1/search`; tap chapter → Start podcast (needs `standardId` + `sectionId` from API).
 
 #### Accessibility
 - Search field traits; clear button labeled.

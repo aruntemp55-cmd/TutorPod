@@ -37,12 +37,14 @@ export async function searchRoutes(app: FastifyInstance) {
         [like, limit],
       ),
       query(
-        `SELECT id, subject_id AS "sectionId", title, synopsis,
-                image_url AS "imageUrl", sort_order AS "sortOrder",
-                source_count AS "sourceCount"
-         FROM chapters
-         WHERE title ILIKE $1 OR synopsis ILIKE $1
-         ORDER BY sort_order LIMIT $2`,
+        `SELECT c.id, c.subject_id AS "sectionId", s.standard_id AS "standardId",
+                s.name AS "sectionName", c.title, c.synopsis,
+                c.image_url AS "imageUrl", c.sort_order AS "sortOrder",
+                c.source_count AS "sourceCount"
+         FROM chapters c
+         JOIN subjects s ON s.id = c.subject_id
+         WHERE c.title ILIKE $1 OR c.synopsis ILIKE $1
+         ORDER BY c.sort_order LIMIT $2`,
         [like, limit],
       ),
     ]);

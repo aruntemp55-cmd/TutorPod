@@ -159,12 +159,13 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 - **Request:** `{ "email": "student@example.com" }`
 - **Response:** `{ "ok": true, "expiresInSec": 300 }`
 - **Errors:** `400` invalid email; `429` rate limit
+- **Stub vs production:** Non-production always issues `OTP_STUB_CODE` (default `000000`) for Maestro/local. `NODE_ENV=production` issues a random 6-digit code and **must not** accept the stub on verify. Production currently **does not send** SMS/email (no provider wired) — remaining ops work.
 
 ### POST /auth/otp/verify
 - **Auth:** none
 - **Request:** `{ "email": "…", "code": "123456" }`
 - **Response:** `{ "accessToken": "…", "refreshToken": "…", "user": { "id", "email", "name", "standardId" } }`
-- **Errors:** `401` invalid; `429` rate limit
+- **Errors:** `401` invalid; `429` rate limit. Production rejects stub `000000`.
 
 ### POST /auth/refresh
 - **Auth:** refresh token body
@@ -297,7 +298,7 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 - **Pagination:** Cursor-based on `/pods`.
 - **Sorting:** MyPods default `createdAt desc`; chapters by `sortOrder` or path position.
 - **Filtering:** pods by status; chapters by subject / path.
-- **Search (P1):** `GET /search?q=&scope=chapters|pods` — chapters guest OK; pods scope requires auth.
+- **Search (P1):** `GET /api/v1/search?q=` — chapters include `standardId` + `sectionId` for Start podcast; pods only when authed.
 - **AuthN:** OTP + JWT access (short) + refresh (long). `[ASSUMPTION: access 15m, refresh 30d.]`
 - **AuthZ (UPDATED):** Guest = catalog chapter browse only. Authenticated = pods/audio/progress/reactions/Q&A + learning-path select. Owner-only for pod-scoped resources. Signed/expiring audio URLs preferred. `[ASSUMPTION: CDN signed URLs short TTL.]`
 - **Error codes:** `400`, `401`, `403`, `404`, `409`, `429`, `500`, `503` with body `{ "error": { "code", "message" } }`.
@@ -313,13 +314,14 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 | Screen | API | Purpose |
 |---|---|---|
 | S003/S004 | POST /auth/otp/* | Login (+ resume) |
-| S005 | GET catalog standards/subjects/chapters (no auth) | Guest/auth browse |
-| S014 | — (client gate) → auth | Soft-prompt before listen/path |
+| S026 Main | GET catalog sections; GET /search | Tiles + search → Start/topics |
+| S005 | *Deprecated unused HomeScreen* | — |
+| S014 | — (legacy guest gate) | Unused in login-first |
 | S006/S007 | POST /pods, GET /pods/:id/status (**auth**) | Start & wait |
 | S008 | GET /pods/:id, PUT progress, PUT reaction (**auth**) | Player listen |
-| S009 | GET learning-paths, PUT me/learning-paths/:subjectId (**auth**) | Path create/select |
+| S009 LearningPath | GET …/learning-paths; PUT /me/learning-paths/:sectionId | Path select from Main |
 | S010 | GET /pods (**auth**) | MyPods listen library |
-| S011 | POST/GET …/questions (**auth**); voice via POST /ask/transcribe | Raise-hand text+voice |
-| S012 | GET/PATCH /me, POST logout (**auth**) | Account (legacy) |
+| S011 | POST/GET …/questions (**auth**); voice via POST /ask/transcribe | Raise-hand (Player modal) |
+| S012 | *Deprecated unused AccountScreen* | Settings is live profile |
 | S027 Ask | POST /ask; POST /ask/transcribe | Standalone ask chat+voice |
 | S028 Settings | GET catalog/standards; GET/PATCH /me; **POST /auth/logout** | Profile + appearance + logout → Login |

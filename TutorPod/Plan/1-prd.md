@@ -12,8 +12,8 @@
   - Let a logged-in student select Standard → Subject → Chapter and start a podcast (2–4 hosts).
   - Persist generated/started pods under MyPods with play and raise-hand controls.
   - Deliver a full player experience (waveform, seek, ±10s, speed, like/dislike).
-  - Support Learning Path selection per subject.
-  - Show Account with student name and Standard.
+  - Support Learning Path selection per subject **from Student Main**.
+  - Show **Settings** with student name, Standard, appearance, and Log out.
 - **Non-goals (v1):**
   - Full NotebookLM-parity Studio (video overview, slide deck, flashcards, quiz, infographic, reports) as P0.
   - Teacher CMS / school admin dashboards.
@@ -24,8 +24,8 @@
   1. Guest browses All chapter tiles; tapping Play/Start soft-prompts login, then configures hosts + context and starts podcast.
   2. Logged-in student resumes a pod from MyPods, plays audio, seeks, changes speed, likes/dislikes.
   3. Student raises hand during or from a pod row, asks a question, receives an answer grounded in chapter context.
-  4. Logged-in student sets a Learning Path for a subject (guest cannot create/select) and browses recommended chapters.
-  5. Student views Account (name, Standard); guest sees Sign in.
+  4. Logged-in student opens **Learning Path** from Main, selects a path, starts a topic podcast.
+  5. Student uses **Settings** (name, Standard, Log out → Login).
 
 
 ## Student UX v3 (login-first) — **current**
@@ -34,32 +34,32 @@
 |---|---|---|---|
 | R024 | Login-first entry | App opens on **Login** (no guest Main / onboarding-first) | P0 |
 | R025 | Mandatory settings gate | After student OTP: require **Name** + **Standard** before Main | P0 |
-| R026 | Student Main tiles | Search + **Ask any question** + **My Pods** + **subject tiles** for selected Standard | P0 |
-| R027 | Ask any question | Chat + voice via ChatGPT-style composer → Whisper STT (`POST /api/v1/ask/transcribe`, env-gated); AI reply (OpenAI or stub); Back → Main | P0 |
+| R026 | Student Main tiles | Search + **Ask any question** + **My Pods** + **Learning Path** + **subject tiles** for selected Standard | P0 |
+| R027 | Ask any question | Chat + voice; Whisper when `OPENAI_API_KEY` is set, else type-instead (503 STT); Ask/Q&A stub without key | P0 |
 | R028 | Subject → topics | Subject tile → topic/chapter tiles → Start podcast | P0 |
 | R029 | Host count default | Start podcast **defaults to 2 hosts** | P0 |
 | R030 | Settings logout | Signed-in students always see **Log out** on Settings (gate and completed profile); `signOut` then reset to **Login** (not guest Home) | P0 |
 
 - Guests do **not** land on catalog Main.
 - Admin login still lands on Admin when `role=admin`.
-- Appearance (light/dark/system) remains on Account/Settings.
-- **Settings (S028)** is the student profile + appearance + **Log out** screen (R030). Older Account (S012) logout-to-guest-Home is **not** the v3 destination.
+- Appearance (light/dark/system) remains on **Settings**.
+- **Settings (S028)** is the student profile + appearance + **Log out** screen (R030). **Account (S012) and Home (S005) are not registered** in the live navigator.
 
 ## Features
 
 | ID | Feature | Description | Priority | User |
 |---|---|---|---|---|
 | R001 | Auth gates | **v3:** Login is app entry; student needs complete settings for Main; listen/Q&A remain auth-only | P0 | Student |
-| R002 | Home pills | Filters: **All**, **MyPods**, **Learning Path** | P0 | Student |
-| R003 | Curriculum dropdowns | **v2:** Select **Standard → Section → Chapter** via API-loaded dropdowns (Section replaces Subject) | P0 | Student / Guest |
-| R004 | Chapter tiles | List chapter tiles with photos based on current selection/filters | P0 | Student / Guest |
+| R002 | Home pills | **v3:** All / Search / Studio pills live only on unused `HomeScreen`. Live Main uses tiles (Ask, My Pods, **Learning Path**, subjects) | P0 | Student |
+| R003 | Curriculum dropdowns | **v2 unused on Main.** Subjects come from Settings Standard; topics on SubjectTopics | P0 | Student |
+| R004 | Chapter tiles | Topic tiles on SubjectTopics / Learning Path | P0 | Student |
 | R005 | Start podcast | Host count 2–4 + standard/section/chapter sent to API — **auth required** | P0 | Student |
 | R006 | Topic context (+) | Add optional extra context/notes before generation/start — **auth required** | P0 | Student |
 | R007 | MyPods library | List student’s podcasts with play + raise-hand controls — **auth required** | P0 | Student |
 | R008 | Streamed audio player | NotebookLM-like player; audio **streamed from server** — **auth required** | P0 | Student |
 | R009 | Raise-hand Q&A | **Pause audio**, ask via **text or voice** (ChatGPT-style composer → Whisper STT → pod question), AI answers, resume — **auth required** | P0 | Student |
-| R010 | Learning Path | Select/view path per **section** — **auth required to create/select** | P0 | Student |
-| R011 | Account | Show student name and Standard; access profile — **auth required** | P0 | Student |
+| R010 | Learning Path | Select/view path per **section** from **Main tile** — **auth required** | P0 | Student |
+| R011 | Account / Settings | **Settings** is live profile (name, Standard, logout). AccountScreen unregistered | P0 | Student |
 | R019 | Admin role + default Admin screen | Admin login in same app; land on Admin Screen | P0 | Admin |
 | R020 | Admin catalog CRUD | Add/update/delete Standard and Section | P0 | Admin |
 | R021 | Admin PDF upload | Upload PDF per Standard + Section | P0 | Admin |
@@ -105,14 +105,17 @@
 
 ## MVP vs Full AI Pipeline
 
+Launch MVP is **env-gated**. With `OPENAI_API_KEY`: Whisper STT, chat Q&A, podcast TTS. Without a key: app must not crash — STT returns 503 (type instead); Ask/raise-hand use stub answers; podcast uses sample audio. **No secrets in git.** Local/dev OTP stub `000000`; production must not accept it and still needs a real SMS/email sender (ops remaining).
+
 | Capability | MVP (P0 launch) | Full generative (post-MVP) |
 |---|---|---|
-| Podcast audio | Server **streams** cached/seeded audio file for chapter×hosts; client plays stream URL | Async LLM script + multi-voice TTS |
-| PDF → chapters | Stub chapter generation from uploaded PDF metadata/heuristics | Real PDF parse + LLM chapter split |
-| Host count 2–4 | Stored on pod metadata; may map to alternate seeded variants when available | True multi-host generation |
-| Context (+) | Stored and used as RAG/context for Q&A; may not regenerate full audio in MVP | Regenerates or branches a new pod audio |
-| Raise-hand Q&A | LLM answer with chapter-context prompt (streaming preferred); fallback canned error | Streaming + citation snippets + follow-ups |
-| Learning Path | Curated ordered chapter lists per subject (seed) | Adaptive path from progress/mastery |
+| Podcast audio | OpenAI TTS when keyed; else cached/seeded sample stream | Always unique multi-host TTS |
+| PDF → chapters | OpenAI outline when keyed; else heuristic stub | Real PDF parse + LLM |
+| Host count 2–4 | Stored; TTS per host when keyed | True multi-host generation |
+| Context (+) | Stored; used in Q&A / script when keyed | Regenerates or branches audio |
+| Raise-hand / Ask Q&A | OpenAI chat when keyed; **stub without key** | Streaming + citations |
+| Voice STT | Whisper when keyed; **503 + type-instead without key** | Always-on STT |
+| Learning Path | Curated ordered chapter lists per subject (seed) | Adaptive path from progress |
 
 ## Success Criteria
 - Student can complete Standard → Section → Chapter (dropdowns) → Start podcast (2–4 hosts) → streamed Player after login.
@@ -122,8 +125,8 @@
 - **UPDATED:** Unauthenticated Play / Start podcast / Learning Path select always redirects to auth; no anonymous audio streaming.
 - MyPods shows started pods with play and raise-hand; player supports seek, ±10s, speed, like/dislike.
 - Raise-hand returns a visible answer for a valid question in under an agreed latency budget. `[ASSUMPTION: p95 < 8s for MVP text answer.]`
-- Learning Path can be selected for a subject (only when logged in) and filters/recommends chapters accordingly.
-- Account displays name and Standard; **Settings always offers Log out** for signed-in students, landing on Login.
+- Learning Path can be selected from **Student Main** (logged in) and then starts a topic podcast.
+- **Settings** displays name and Standard; **always offers Log out**, landing on Login.
 - All P0 features covered by acceptance tests in the implementation plan.
 - Dark Studio-inspired UI matches design tokens in `5-ui-design.md` (Tutor Pod brand, not Gemini/NotebookLM copy).
 

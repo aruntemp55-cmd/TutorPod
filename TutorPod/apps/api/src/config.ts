@@ -5,6 +5,7 @@ export const config = {
   databaseUrl:
     process.env.DATABASE_URL ?? "postgres://localhost:5432/tutorpod",
   jwtSecret: process.env.JWT_SECRET ?? "tutorpod-dev-secret",
+  /** Non-prod OTP. Production never issues or accepts this stub. */
   otpStubCode: process.env.OTP_STUB_CODE ?? "000000",
   nodeEnv: process.env.NODE_ENV ?? "development",
   podGenerateDelayMs: Number(process.env.POD_GENERATE_DELAY_MS ?? 350),
