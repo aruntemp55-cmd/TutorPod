@@ -65,8 +65,8 @@ Light mode: P2 — not required for MVP.
 ## Components
 
 ### Buttons
-- **Primary solid:** white fill / dark text for bottom CTAs (“Start podcast”, “Create”-style).
-- **Primary accent:** `accent.primary` fill for Player play/pause.
+- **Primary solid:** white fill / dark text for bottom CTAs (“Start podcast”, “Create”-style). Settings **Save / Continue** use this.
+- **Primary accent:** `accent.primary` fill for Player play/pause and Settings **Log out** (always present) plus **Back to Main**.
 - **Icon circle:** 40–48 outline or filled dark; used for Play / Raise hand on rows.
 - **Text button:** secondary actions (Resend OTP).
 
@@ -128,6 +128,8 @@ App
 │   ├── OnboardingScreen
 │   ├── LoginScreen
 │   ├── OtpScreen
+│   ├── SettingsScreen          # v3 name/Standard/appearance + Log out
+│   ├── StudentMainScreen
 │   ├── HomeScreen
 │   ├── MyPodsScreen
 │   ├── LearningPathScreen

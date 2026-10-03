@@ -28,7 +28,7 @@ Home (All) — guest OK for browse  OR  Login if user chose Sign in
  │
  └── Account
       ├── [GUEST] → Sign in
-      └── [AUTH] Name + Standard / Logout
+      └── [AUTH] Name + Standard / Logout → **Login (v3)**; Settings (S028) is the student path
 
 Error / Offline / Empty branches from each major screen
 ```
@@ -74,7 +74,20 @@ flowchart TD
   H --> S
   I --> S
   S -->|Guest| E
-  S -->|Auth logout| E
+  S -->|Auth logout (legacy guest Home)| E
+```
+
+**v3 login-first (current):** student Settings logout goes to **Login**, not guest Home. See F013.
+
+```mermaid
+flowchart TD
+  L[Login] --> O[OTP]
+  O -->|admin| A[Admin]
+  O -->|student incomplete| ST[Settings S028]
+  O -->|student complete| M[Main]
+  ST -->|Save Continue| M
+  M --> ST
+  ST -->|Log out signOut| L
 ```
 
 ```mermaid
@@ -196,11 +209,21 @@ sequenceDiagram
 - **Error / Empty / Loading / Back:** Guest = sign-in CTA; empty if no paths seeded; error retry.
 
 ### F010 — Account
-- **Entry point:** Avatar / Account tab.
+- **Entry point:** Avatar / Account tab (legacy Home tabs).
 - **User action:** View name + Standard; optionally edit Standard; logout — or Sign in if guest.
-- **System response:** Guest → Sign in CTA; Auth → profile; PATCH Standard; clear session on logout → guest Home.
-- **Next step:** Home after Standard change; after logout → F004 guest browse (not forced re-login wall).
-- **Success / Error / Empty / Loading / Back:** Form validation on Standard; logout confirm dialog. `[ASSUMPTION: confirm before logout.]`
+- **System response:** Guest → Sign in CTA; Auth → profile; PATCH Standard.
+- **Logout (v3 / current student app):** clear session via `POST /auth/logout` → **Login (S003)**. Do **not** send students to guest Home. `[SUPERSEDED: logout → guest browse F004.]`
+- **Next step:** Home after Standard change (legacy); student v3 uses Settings (F013) instead of Account for this path.
+- **Success / Error / Empty / Loading / Back:** Form validation on Standard. Confirm dialog is optional; current Settings logout is immediate. `[ASSUMPTION: no confirm required on Settings.]`
+
+### F013 — Student Settings logout (v3, login-first)
+- **Entry point:** Settings (S028) — mandatory Name+Standard gate **or** Main → Settings (completed profile).
+- **User action:** Tap **Log out** (always visible for signed-in students).
+- **System response:** `useAuth().signOut()` → `POST /api/v1/auth/logout`; then `navigation.reset` to Login.
+- **Next step:** S003 Login. Not guest Home / S005.
+- **Success state:** Session cleared; Login is the only root route.
+- **Error state:** Logout API failure still clears local session (client ignore) and still lands on Login.
+- **Empty / Loading / Back:** Log out remains available while saving is idle; Back to Main only when profile is complete (not on mandatory gate).
 
 ### F012 — Login soft-prompt + resume (NEW)
 - **Entry point:** Guest taps Play, Start podcast, MyPods listen, Learning Path select/create, or raise-hand.

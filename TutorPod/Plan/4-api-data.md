@@ -320,5 +320,6 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 | S009 | GET learning-paths, PUT me/learning-paths/:subjectId (**auth**) | Path create/select |
 | S010 | GET /pods (**auth**) | MyPods listen library |
 | S011 | POST/GET …/questions (**auth**); voice via POST /ask/transcribe | Raise-hand text+voice |
+| S012 | GET/PATCH /me, POST logout (**auth**) | Account (legacy) |
 | S027 Ask | POST /ask; POST /ask/transcribe | Standalone ask chat+voice |
-| S012 | GET/PATCH /me, POST logout (**auth**) | Account |
+| S028 Settings | GET catalog/standards; GET/PATCH /me; **POST /auth/logout** | Profile + appearance + logout → Login |

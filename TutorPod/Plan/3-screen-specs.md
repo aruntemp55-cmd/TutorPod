@@ -7,7 +7,7 @@
 | S001 | Splash | Brand + session bootstrap | App launch | S002 / S005 |
 | S002 | Onboarding | First-run value props | S001 | S005 (browse) / S003 |
 | S003 | Login | Email entry (incl. soft-prompt) | Soft-prompt / Sign in / logout | S004 |
-| S004 | OTP Verify | Complete auth + resume pending | S003 | Resume target / S005 / S012 |
+| S004 | OTP Verify | Complete auth + resume pending | S003 | Resume target / S005 / S012 / **S028** |
 | S005 | Home (All) | Browse chapters (guest OK); gated Play/Start | Tabs / onboarding | S006 / S008 / S009 / S014 / S003 |
 | S006 | Start Podcast Sheet | Hosts + context + start (**auth**) | S005 / S009 | S007 / S008 / dismiss |
 | S007 | Generating | Wait for pod readiness | S006 | S008 / S010 |
@@ -15,9 +15,10 @@
 | S009 | Learning Path | Select path (**auth**); guest → sign-in | Pill / S005 | S005 / S006 / S008 / S003 |
 | S010 | MyPods | Podcast library (**auth** to listen) | Pill / tab | S008 / S011 / S003 |
 | S011 | Raise-hand Q&A Sheet | Ask question; view answer (**auth**) | S008 / S010 | Prior screen |
-| S012 | Account | Name, Standard, logout / guest Sign in | Avatar / tab | S005 / S003 |
+| S012 | Account | Name, Standard, logout / guest Sign in | Avatar / tab | S005 / **S003 (v3 logout)** |
 | S013 | Search (P1) | Search chapters/pods | S005 / S010 | Results → S005 / S008 |
 | S014 | Login soft-prompt sheet | Explain gate; continue to auth | Play/Start/Path/MyPods when guest | S003 / dismiss |
+| S028 | Settings | Student name, Standard, appearance, **Log out** | OTP incomplete / Main | Main / **Login on logout** |
 
 ## Screens
 
@@ -250,9 +251,9 @@
 ---
 
 ### S012 — Account
-- **Purpose:** Student name + Standard; logout — or guest Sign in.
+- **Purpose:** Student name + Standard; logout — or guest Sign in. **Student v3 uses S028 Settings** for this; S012 remains for legacy Main tabs.
 - **Entry:** Avatar / Account tab.
-- **Exit:** S005; logout → S005 guest; Sign in → S003.
+- **Exit:** S005; **logout → S003 Login (v3)**. Guest Sign in → S003. `[SUPERSEDED: logout confirm → guest Home.]`
 
 #### UI
 - **Guest:** Sign in primary CTA + short value copy.
@@ -262,10 +263,35 @@
 - Guest / Default / Loading profile / Error / Saving Standard / Offline.
 
 #### Interaction
-- Change Standard (saves); logout confirm → guest Home (browse still allowed).
+- Change Standard (saves); logout → `signOut` then Login (login-first). Do not revive guest browse as the logout destination.
 
 #### Accessibility
-- Form labels; destructive logout announced.
+- Form labels; logout announced (`Log out`).
+
+---
+
+### S028 — Settings (student v3)
+- **Purpose:** Name + Standard + appearance; **always Log out** for signed-in students (R025 gate + R030).
+- **Entry:** Post-OTP when profile incomplete (`mandatory`); Main gear / Settings when complete.
+- **Exit:** Continue/Save → Main; Back to Main (complete profile only); Log out → Login via stack reset.
+
+#### UI
+- Title: “Complete your settings” (mandatory) or “Settings”.
+- Fields: Student name, Standard chips, Appearance chips (light/dark/system).
+- Actions (top to bottom):
+  1. **Continue** (mandatory) or **Save** (complete) — primary/light.
+  2. **Back to Main** — accent; **only when not mandatory**.
+  3. **Log out** — accent; **always** (`testID=button-logout`, accessibility label “Log out”).
+
+#### States
+- Mandatory incomplete / Default complete / Saving / Validation error / Loading standards.
+
+#### Interaction
+- Continue/Save requires name + Standard; then reset to Main.
+- Log out: `signOut()` then `navigation.reset` to Login. Not guest Home. No confirm required.
+
+#### Accessibility
+- Named fields; Log out ≥ 44pt target; `accessibilityLabel="Log out"`.
 
 ---
 

@@ -13,6 +13,10 @@ Login ──OTP──► Admin? ──yes──► Admin
             ▼           ▼
         Settings ───► Main (tiles)
                          │
+                    Settings (anytime)
+                         │
+                    Log out ──► Login
+                         │
          ┌───────────────┼───────────────┐
          ▼               ▼               ▼
       Search        Ask any question   My Pods
@@ -33,6 +37,12 @@ Login ──OTP──► Admin? ──yes──► Admin
 - **Standard** (required UUID)
 
 Until both are set, Main is blocked (Settings only).
+
+## Settings logout (R030)
+- Settings **always** shows **Log out** for signed-in students (mandatory gate and completed-profile Settings).
+- Continue/Save stays first; **Back to Main** only when the profile is complete.
+- Logout: `signOut()` (`POST /api/v1/auth/logout`) then `navigation.reset` to **Login**. Not guest Home.
+- Control: `testID=button-logout`, accessibility label “Log out”, accent button.
 
 ## Ask voice STT
 1. Mobile ChatGPT-style composer records audio → `POST /api/v1/ask/transcribe` (multipart `file`)

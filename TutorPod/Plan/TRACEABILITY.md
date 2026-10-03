@@ -63,6 +63,7 @@ See [`docs/p1-p2.md`](docs/p1-p2.md).
 |---|---|---|---|
 | R024 Login-first | Login initial route | Splash→Login; LoginScreen | **Done** |
 | R025 Settings gate | Settings; `profileComplete` on `/me` | SettingsScreen; AuthContext | **Done** |
+| R030 Settings logout | F013; S028; POST `/auth/logout` | SettingsScreen; `settingsLogout.ts`; AuthContext.signOut | **Done** (`settingsLogout.test.ts`) |
 | R026 Main tiles | Main | StudentMainScreen | **Done** |
 | R027 Ask any question | AskQuestion; `POST /api/v1/ask` + `/ask/transcribe` | AskQuestionScreen; AskTutorComposer; ask.ts; stt.ts (Whisper / 503 fallback) | **Done** (T086 composer aligned) |
 | R028 Subject→topics | SubjectTopics | SubjectTopicsScreen | **Done** |

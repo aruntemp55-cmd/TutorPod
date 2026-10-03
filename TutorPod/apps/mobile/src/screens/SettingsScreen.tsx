@@ -12,6 +12,10 @@ import {
   Screen,
   Title,
 } from "../components/ui";
+import {
+  settingsActionVisibility,
+  settingsLogoutReset,
+} from "../navigation/settingsLogout";
 import type { RootStackParamList } from "../navigation/types";
 import { useTheme } from "../theme/ThemeContext";
 import { THEME_OPTIONS, type ThemePreference } from "../theme/preference";
@@ -24,6 +28,7 @@ export function SettingsScreen({ navigation, route }: Props) {
   const { user, updateName, updateStandard, refreshProfile, signOut, token } =
     useAuth();
   const mandatory = route.params?.mandatory !== false && !isProfileComplete(user);
+  const actions = settingsActionVisibility(mandatory);
   const [standards, setStandards] = useState<Standard[]>([]);
   const [name, setName] = useState(user?.name ?? "");
   const [standardId, setStandardId] = useState<string | null>(
@@ -141,23 +146,25 @@ export function SettingsScreen({ navigation, route }: Props) {
         onPress={() => void onContinue()}
         disabled={saving}
       />
-      {!mandatory ? (
+      {!actions.backToMain ? null : (
         <PrimaryButton
           label="Back to Main"
           variant="accent"
+          testID="button-back-main"
           onPress={() => navigation.navigate("Main")}
         />
-      ) : (
+      )}
+      {actions.logout ? (
         <PrimaryButton
           label="Log out"
           variant="accent"
+          testID="button-logout"
+          accessibilityLabel="Log out"
           onPress={() =>
-            void signOut().then(() =>
-              navigation.reset({ index: 0, routes: [{ name: "Login" }] }),
-            )
+            void signOut().then(() => navigation.reset(settingsLogoutReset()))
           }
         />
-      )}
+      ) : null}
     </Screen>
   );
 }

@@ -16,9 +16,10 @@ Listen-first mobile tutor: **login-first** student app with Main tiles (Search, 
 1. App opens on **Login**
 2. Student OTP → **Settings** until **Name** + **Standard** are set
 3. Then **Main** tiles: Search · Ask any question · My Pods · subject tiles
-4. Subject → topic tiles → Start podcast (**host default 2**) → Player
-5. Ask any question / Raise hand → ChatGPT-style voice+text composer → `POST /api/v1/ask/transcribe` (Whisper) → Ask: `POST /api/v1/ask` · Raise-hand: `POST /api/v1/pods/:id/questions`
-6. Admin OTP → **Admin** screen
+4. **Settings** (from Main or the first-time gate) always includes **Log out** → Login
+5. Subject → topic tiles → Start podcast (**host default 2**) → Player
+6. Ask any question / Raise hand → ChatGPT-style voice+text composer → `POST /api/v1/ask/transcribe` (Whisper) → Ask: `POST /api/v1/ask` · Raise-hand: `POST /api/v1/pods/:id/questions`
+7. Admin OTP → **Admin** screen
 
 Dark/Light/System appearance lives on Settings (and Account).
 

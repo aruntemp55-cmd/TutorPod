@@ -64,11 +64,15 @@ export function PrimaryButton({
   onPress,
   disabled,
   variant = "light",
+  testID,
+  accessibilityLabel,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   variant?: "light" | "accent";
+  testID?: string;
+  accessibilityLabel?: string;
 }) {
   const { colors } = useTheme();
   const bg =
@@ -78,8 +82,8 @@ export function PrimaryButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
-      testID={`btn-${label}`}
+      accessibilityLabel={accessibilityLabel ?? label}
+      testID={testID ?? `btn-${label}`}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [

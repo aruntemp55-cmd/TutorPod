@@ -38,10 +38,12 @@
 | R027 | Ask any question | Chat + voice via ChatGPT-style composer → Whisper STT (`POST /api/v1/ask/transcribe`, env-gated); AI reply (OpenAI or stub); Back → Main | P0 |
 | R028 | Subject → topics | Subject tile → topic/chapter tiles → Start podcast | P0 |
 | R029 | Host count default | Start podcast **defaults to 2 hosts** | P0 |
+| R030 | Settings logout | Signed-in students always see **Log out** on Settings (gate and completed profile); `signOut` then reset to **Login** (not guest Home) | P0 |
 
 - Guests do **not** land on catalog Main.
 - Admin login still lands on Admin when `role=admin`.
 - Appearance (light/dark/system) remains on Account/Settings.
+- **Settings (S028)** is the student profile + appearance + **Log out** screen (R030). Older Account (S012) logout-to-guest-Home is **not** the v3 destination.
 
 ## Features
 
@@ -121,7 +123,7 @@
 - MyPods shows started pods with play and raise-hand; player supports seek, ±10s, speed, like/dislike.
 - Raise-hand returns a visible answer for a valid question in under an agreed latency budget. `[ASSUMPTION: p95 < 8s for MVP text answer.]`
 - Learning Path can be selected for a subject (only when logged in) and filters/recommends chapters accordingly.
-- Account displays name and Standard.
+- Account displays name and Standard; **Settings always offers Log out** for signed-in students, landing on Login.
 - All P0 features covered by acceptance tests in the implementation plan.
 - Dark Studio-inspired UI matches design tokens in `5-ui-design.md` (Tutor Pod brand, not Gemini/NotebookLM copy).
 
