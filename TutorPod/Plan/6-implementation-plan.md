@@ -137,7 +137,7 @@ Sprint status: **Done**
 | T080 | **Done** | Login-first entry; remove guest Main CTA |
 | T081 | **Done** | Mandatory Name+Standard Settings gate |
 | T082 | **Done** | Main tiles: Search, Ask, MyPods, subjects |
-| T083 | **Done** | Ask any question chat + voice (stub STT) |
+| T083 | **Done** | Ask chat + voice; `POST /api/v1/ask/transcribe` (Whisper when keyed; graceful fallback) |
 | T084 | **Done** | Subject → topic tiles → Start (host default 2) |
 | T085 | **Done** | `POST /api/v1/ask` + profileComplete on `/me` |
 

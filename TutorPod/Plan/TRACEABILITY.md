@@ -64,7 +64,7 @@ See [`docs/p1-p2.md`](docs/p1-p2.md).
 | R024 Login-first | Login initial route | Splash→Login; LoginScreen | **Done** |
 | R025 Settings gate | Settings; `profileComplete` on `/me` | SettingsScreen; AuthContext | **Done** |
 | R026 Main tiles | Main | StudentMainScreen | **Done** |
-| R027 Ask any question | AskQuestion; `POST /api/v1/ask` | AskQuestionScreen; ask.ts | **Done** |
+| R027 Ask any question | AskQuestion; `POST /api/v1/ask` + `/ask/transcribe` | AskQuestionScreen; ask.ts; stt.ts (Whisper / 503 fallback) | **Done** |
 | R028 Subject→topics | SubjectTopics | SubjectTopicsScreen | **Done** |
 | R029 Host default 2 | StartPodcast | `useState(2)` | **Done** |
 

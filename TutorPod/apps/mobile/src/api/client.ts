@@ -47,3 +47,35 @@ export async function api<T>(path: string, opts: Options = {}): Promise<T> {
   }
   return data as T;
 }
+
+/** Multipart upload (no Content-Type — boundary is set by fetch/FormData). */
+export async function apiUpload<T>(
+  path: string,
+  opts: { token: string; form: FormData; method?: string },
+): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method: opts.method ?? "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${opts.token}`,
+      },
+      body: opts.form,
+    });
+  } catch (err) {
+    noteNetworkFailure(err);
+    throw err;
+  }
+
+  noteNetworkSuccess();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(
+      res.status,
+      data?.error?.code ?? "ERROR",
+      data?.error?.message ?? res.statusText,
+    );
+  }
+  return data as T;
+}

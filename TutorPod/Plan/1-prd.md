@@ -35,7 +35,7 @@
 | R024 | Login-first entry | App opens on **Login** (no guest Main / onboarding-first) | P0 |
 | R025 | Mandatory settings gate | After student OTP: require **Name** + **Standard** before Main | P0 |
 | R026 | Student Main tiles | Search + **Ask any question** + **My Pods** + **subject tiles** for selected Standard | P0 |
-| R027 | Ask any question | Chat + voice recorder; AI reply (OpenAI or stub); Back → Main | P0 |
+| R027 | Ask any question | Chat + voice → Whisper STT (`POST /api/v1/ask/transcribe`, env-gated); AI reply (OpenAI or stub); Back → Main | P0 |
 | R028 | Subject → topics | Subject tile → topic/chapter tiles → Start podcast | P0 |
 | R029 | Host count default | Start podcast **defaults to 2 hosts** | P0 |
 

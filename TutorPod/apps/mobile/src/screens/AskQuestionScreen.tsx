@@ -14,7 +14,7 @@ import {
   useAudioRecorder,
   useAudioRecorderState,
 } from "expo-audio";
-import { api } from "../api/client";
+import { api, apiUpload } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import {
   ErrorBanner,
@@ -31,6 +31,16 @@ type Props = NativeStackScreenProps<RootStackParamList, "AskQuestion">;
 
 type Turn = { id: string; role: "user" | "assistant"; content: string };
 
+function guessAudioMeta(uri: string): { name: string; type: string } {
+  const lower = uri.toLowerCase();
+  if (lower.endsWith(".wav")) return { name: "question.wav", type: "audio/wav" };
+  if (lower.endsWith(".webm"))
+    return { name: "question.webm", type: "audio/webm" };
+  if (lower.endsWith(".mp3")) return { name: "question.mp3", type: "audio/mpeg" };
+  if (lower.endsWith(".caf")) return { name: "question.caf", type: "audio/x-caf" };
+  return { name: "question.m4a", type: "audio/mp4" };
+}
+
 export function AskQuestionScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { token } = useAuth();
@@ -38,6 +48,7 @@ export function AskQuestionScreen({ navigation }: Props) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const listRef = useRef<FlatList<Turn>>(null);
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recState = useAudioRecorderState(recorder);
@@ -73,9 +84,44 @@ export function AskQuestionScreen({ navigation }: Props) {
       ]);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
     } catch (e) {
+      setText(trimmed);
       setError(e instanceof Error ? e.message : "Ask failed");
     } finally {
       setSending(false);
+    }
+  }
+
+  async function transcribeAndSend(uri: string) {
+    if (!token) return;
+    setTranscribing(true);
+    setError(null);
+    try {
+      const meta = guessAudioMeta(uri);
+      const form = new FormData();
+      form.append("file", {
+        uri,
+        name: meta.name,
+        type: meta.type,
+      } as unknown as Blob);
+      const res = await apiUpload<{ transcript: string }>(
+        "/api/v1/ask/transcribe",
+        { token, form },
+      );
+      const transcript = res.transcript.trim();
+      if (!transcript) {
+        setError("Could not hear a question. Try again or type it.");
+        return;
+      }
+      setText(transcript);
+      await sendMessage(transcript);
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Could not transcribe audio. Type your question instead.",
+      );
+    } finally {
+      setTranscribing(false);
     }
   }
 
@@ -83,12 +129,12 @@ export function AskQuestionScreen({ navigation }: Props) {
     try {
       if (recState.isRecording) {
         await recorder.stop();
-        // Stub STT — no speech API; prompt user with editable draft
-        setText((prev) =>
-          prev.trim()
-            ? prev
-            : "Voice note: please edit this into your question…",
-        );
+        const uri = recorder.uri;
+        if (!uri) {
+          setError("Recording failed — no audio file. Type your question.");
+          return;
+        }
+        await transcribeAndSend(uri);
         return;
       }
       const perm = await requestRecordingPermissionsAsync();
@@ -103,6 +149,8 @@ export function AskQuestionScreen({ navigation }: Props) {
     }
   }
 
+  const busy = sending || transcribing;
+
   return (
     <Screen style={{ paddingTop: space[6], flex: 1 }} testID="screen-ask">
       <Pressable onPress={() => navigation.goBack()}>
@@ -113,7 +161,10 @@ export function AskQuestionScreen({ navigation }: Props) {
       <Title style={{ fontSize: 22, marginVertical: space[3] }}>
         Ask any question
       </Title>
-      <Meta>Type or record a voice note (transcription is a stub — edit before send).</Meta>
+      <Meta>
+        Type or record a voice question. Voice is transcribed with Whisper when
+        OPENAI_API_KEY is set on the API; otherwise type your question.
+      </Meta>
       {error ? <ErrorBanner message={error} /> : null}
       <FlatList
         ref={listRef}
@@ -154,6 +205,7 @@ export function AskQuestionScreen({ navigation }: Props) {
           placeholder="Type your question…"
           placeholderTextColor={colors.textDisabled}
           multiline
+          editable={!busy}
           style={[
             styles.input,
             { backgroundColor: colors.card, color: colors.text },
@@ -161,14 +213,21 @@ export function AskQuestionScreen({ navigation }: Props) {
         />
         <View style={styles.actions}>
           <PrimaryButton
-            label={recState.isRecording ? "Stop" : "Voice"}
+            label={
+              recState.isRecording
+                ? "Stop"
+                : transcribing
+                  ? "…"
+                  : "Voice"
+            }
             variant="accent"
             onPress={() => void toggleRecord()}
+            disabled={busy && !recState.isRecording}
           />
           <PrimaryButton
             label={sending ? "…" : "Send"}
             onPress={() => void sendMessage(text)}
-            disabled={sending || !text.trim()}
+            disabled={busy || !text.trim()}
           />
         </View>
       </View>

@@ -17,7 +17,7 @@ Listen-first mobile tutor: **login-first** student app with Main tiles (Search, 
 2. Student OTP → **Settings** until **Name** + **Standard** are set
 3. Then **Main** tiles: Search · Ask any question · My Pods · subject tiles
 4. Subject → topic tiles → Start podcast (**host default 2**) → Player
-5. Ask any question → chat + voice (STT stub) → `POST /api/v1/ask`
+5. Ask any question → chat + voice → `POST /api/v1/ask/transcribe` (Whisper) → `POST /api/v1/ask`
 6. Admin OTP → **Admin** screen
 
 Dark/Light/System appearance lives on Settings (and Account).

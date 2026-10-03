@@ -18,6 +18,7 @@ Login ──OTP──► Admin? ──yes──► Admin
       Search        Ask any question   My Pods
          │               ▼               ▼
          │          Ask chat+voice    MyPods list → Player
+         │          (Whisper STT)
          │
          ▼
    Subject tiles (for Settings standard)
@@ -32,6 +33,12 @@ Login ──OTP──► Admin? ──yes──► Admin
 - **Standard** (required UUID)
 
 Until both are set, Main is blocked (Settings only).
+
+## Ask voice STT
+1. Mobile records `.m4a` → `POST /api/v1/ask/transcribe` (multipart `file`)
+2. API uses OpenAI Whisper when `OPENAI_API_KEY` is set
+3. Without key / on failure → `503 STT_UNAVAILABLE` or `STT_FAILED` — type instead
+4. Transcript fills input and is sent to `POST /api/v1/ask`
 
 ## Credentials
 | Role | Email | OTP |

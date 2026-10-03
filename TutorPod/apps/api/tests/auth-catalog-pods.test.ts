@@ -9,6 +9,10 @@ import {
   resetAnswerQuestionImpl,
   setAnswerQuestionImpl,
 } from "../src/services/qa.js";
+import {
+  resetTranscribeImpl,
+  setTranscribeImpl,
+} from "../src/services/stt.js";
 
 process.env.POD_GENERATE_DELAY_MS = "0";
 // Integration suite uses stub AI (no live OpenAI spend/latency)
@@ -764,5 +768,58 @@ describe("Tutor Pod API v2", () => {
     resetRateLimits();
     delete process.env.POD_DAILY_QUOTA;
     delete process.env.RATE_LIMIT_MAX_PODS;
+  });
+
+  it("R027 STT without key returns 503 STT_UNAVAILABLE", async () => {
+    resetTranscribeImpl();
+    const { token } = await login(`stt-nokey-${Date.now()}@example.com`);
+    const boundary = "----sttboundary";
+    const audioBody = Buffer.concat([
+      Buffer.from(
+        `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="q.m4a"\r\nContent-Type: audio/mp4\r\n\r\n`,
+      ),
+      Buffer.from("fake-audio"),
+      Buffer.from(`\r\n--${boundary}--\r\n`),
+    ]);
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/ask/transcribe",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": `multipart/form-data; boundary=${boundary}`,
+      },
+      payload: audioBody,
+    });
+    assert.equal(res.statusCode, 503, res.body);
+    assert.equal(res.json().error.code, "STT_UNAVAILABLE");
+  });
+
+  it("R027 STT mock returns transcript", async () => {
+    setTranscribeImpl(async () => "What is a mole?");
+    try {
+      const { token } = await login(`stt-mock-${Date.now()}@example.com`);
+      const boundary = "----sttmock";
+      const audioBody = Buffer.concat([
+        Buffer.from(
+          `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="q.m4a"\r\nContent-Type: audio/mp4\r\n\r\n`,
+        ),
+        Buffer.from("fake-audio"),
+        Buffer.from(`\r\n--${boundary}--\r\n`),
+      ]);
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/v1/ask/transcribe",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": `multipart/form-data; boundary=${boundary}`,
+        },
+        payload: audioBody,
+      });
+      assert.equal(res.statusCode, 200, res.body);
+      assert.equal(res.json().transcript, "What is a mole?");
+      assert.equal(res.json().provider, "mock");
+    } finally {
+      resetTranscribeImpl();
+    }
   });
 });
